@@ -1,11 +1,10 @@
 package http
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/gcp-iot/model"
 	"github.com/labstack/echo"
+	"github.com/rs/zerolog/log"
+	"net/http"
 )
 
 func (r *registrytHandler) NewRegistry(c echo.Context) error {
@@ -13,7 +12,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 
 	req := new(model.Request)
 	if err := c.Bind(req); err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
@@ -25,7 +24,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	}
 	mResponse, err := r.rUsecase.CreateRegistry(ctx, reg)
 	if mResponse.StatusCode != 200 {
-		fmt.Println(err)
+		log.Error().Err(err).Msg("")
 		return c.JSON(http.StatusInternalServerError, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)

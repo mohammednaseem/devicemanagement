@@ -2,9 +2,8 @@ package usecase
 
 import (
 	"context"
-	"log"
-
 	"github.com/gcp-iot/model"
+	"github.com/rs/zerolog/log"
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
@@ -14,7 +13,7 @@ func (i *registryUsecase) CreateRegistry(ctx context.Context, registry model.Reg
 
 	dr, err := i.registryService.CreateRegistry(c, registry)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("")
 		return dr, err
 
 	}

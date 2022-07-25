@@ -2,8 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
+
 	"net/http"
 	"os"
 	"strings"
@@ -17,14 +16,18 @@ import (
 	"github.com/labstack/echo/middleware"
 
 	"github.com/spf13/viper"
+
+	Log "github.com/labstack/gommon/log"
+	"github.com/rs/zerolog/log"
+	lecho "github.com/ziflex/lecho"
 )
 
 func init() {
 	path, err := os.Getwd()
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("")
 	}
-	fmt.Println(`path: ` + path)
+	log.Info().Msg(`path: ` + path)
 	viper.SetConfigType(`json`)
 	viper.SetConfigName(`config`)
 	viper.AddConfigPath(`./`)
@@ -32,19 +35,19 @@ func init() {
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			fmt.Println("config file not found")
+			log.Error().Err(err).Msg("config file not found")
 		}
 		panic(err)
 	}
 
 	if viper.GetBool(`debug`) {
-		log.Println("Service RUN on DEBUG mode")
+		log.Info().Msg("Service RUN on DEBUG mode")
 	}
 }
 
 func main() {
 
-	fmt.Println("Go Time")
+	log.Info().Msg("Go Time")
 
 	flag.Parse()
 
@@ -53,7 +56,15 @@ func main() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+	logger := lecho.New(
+		os.Stdout,
+		lecho.WithLevel(Log.DEBUG),
+		lecho.WithTimestamp(),
+		lecho.WithCaller(),
+	)
+	e.Logger = logger
+	e.Use(lecho.Middleware(lecho.Config{
+		Logger: logger}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodPatch, http.MethodDelete},
@@ -68,12 +79,12 @@ func main() {
 	}
 
 	if gcpurl == "" {
-		fmt.Println("Configuration Error: ENV_PPSA address not available")
+		log.Error().Msg("Configuration Error: ENV_PPSA address not available")
 	}
 
 	_iotService := iotService.NewRegistryService(gcpurl)
 	_iotUsecase := iotUsecase.NewIoTUsecase(_iotService, timeoutContext)
 	iotDelivery.NewIoTtHandler(e, _iotUsecase)
 
-	log.Fatal(e.Start(viper.GetString("ENV_AUTH_SERVER")))
+	log.Fatal().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
 }

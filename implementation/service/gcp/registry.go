@@ -3,8 +3,8 @@ package gcp
 import (
 	"context"
 	"fmt"
-
 	"github.com/gcp-iot/model"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2/google"
 	cloudiot "google.golang.org/api/cloudiot/v1"
 )
@@ -33,11 +33,11 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 		return dr, err
 	}
 
-	fmt.Println("Created registry:")
-	fmt.Println(response.Id)
-	fmt.Println(response.HttpConfig.HttpEnabledState)
-	fmt.Println(response.MqttConfig.MqttEnabledState)
-	fmt.Println(response.Name)
+	log.Info().Msg("Created registry:")
+	log.Info().Msg(response.Id)
+	log.Info().Msg(response.HttpConfig.HttpEnabledState)
+	log.Info().Msg(response.MqttConfig.MqttEnabledState)
+	log.Info().Msg(response.Name)
 
 	dr := model.Response{Message: "Success"}
 	return dr, err

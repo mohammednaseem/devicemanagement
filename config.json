@@ -1,3 +1,5 @@
 {
-    "debug" : "true"
+    "debug" : "true",
+    "ENV_AUTH_SERVER": ":8091"
+
 }
