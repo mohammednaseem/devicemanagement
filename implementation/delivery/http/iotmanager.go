@@ -14,4 +14,6 @@ func NewIoTtHandler(e *echo.Echo, registryUsecase model.IRegistryrUsecase) {
 		rUsecase: registryUsecase,
 	}
 	e.POST("/registry", RegistrytHandler.NewRegistry)
+	e.PATCH("/registry", RegistrytHandler.UpdateRegistry)
+	e.DELETE("/registry", RegistrytHandler.DeleteRegistry)
 }

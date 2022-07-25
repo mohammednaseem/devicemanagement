@@ -5,15 +5,15 @@ import "context"
 //registry usecase
 type IRegistryrUsecase interface {
 	CreateRegistry(ctx context.Context, registry Registry) (Response, error)
-	//update
-	//delete
+	UpdateRegistry(ctx context.Context, registry Registry) (Response, error)
+	DeleteRegistry(ctx context.Context, registry Registry) (Response, error)
 }
 
 //registry service
 type IRegistryService interface {
 	CreateRegistry(ctx context.Context, registry Registry) (Response, error)
-	//update
-	//delete
+	UpdateRegistry(ctx context.Context, registry Registry) (Response, error)
+	DeleteRegistry(ctx context.Context, registry Registry) (Response, error)
 }
 
 //device usecase
