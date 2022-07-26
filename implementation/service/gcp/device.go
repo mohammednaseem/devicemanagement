@@ -9,7 +9,7 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (_ *deviceIotService) CreateDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) CreateDevice(dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -51,7 +51,7 @@ func (_ *deviceIotService) CreateDevice(dev model.Device) (model.Response, error
 	return dr, err
 }
 
-func (_ *deviceIotService) UpdateDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) UpdateDevice(dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{Message: err.Error()}
@@ -80,7 +80,7 @@ func (_ *deviceIotService) UpdateDevice(dev model.Device) (model.Response, error
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (_ *deviceIotService) DeleteDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) DeleteDevice(dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
