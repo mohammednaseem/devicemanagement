@@ -12,10 +12,10 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (_ *registryIotService) CreateRegistry(registry model.Registry) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
@@ -32,7 +32,7 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 	parent := fmt.Sprintf("projects/%s/locations/%s", registry.ProjectID, registry.Region)
 	response, err := client.Projects.Locations.Registries.Create(parent, &devRegistry).Do()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
@@ -42,7 +42,7 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 	log.Info().Msg(response.MqttConfig.MqttEnabledState)
 	log.Info().Msg(response.Name)
 
-	dr := model.Response{Message: "Success"}
+	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
 
@@ -62,10 +62,10 @@ func getClient() (*cloudiot.Service, error) {
 	return client, nil
 }
 
-func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (_ *registryIotService) UpdateRegistry(registry model.Registry) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{Message: err.Error()}
 		return dr, err
 	}
 
@@ -79,7 +79,7 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	devRegistry.Id = ""
 	response, err := client.Projects.Locations.Registries.Patch(parent, devRegistry).UpdateMask("event_notification_configs").Do()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
@@ -89,31 +89,31 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	log.Info().Msg(response.MqttConfig.MqttEnabledState)
 	log.Info().Msg(response.Name)
 
-	dr := model.Response{Message: "Success"}
+	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (_ *registryIotService) DeleteRegistry(registry model.Registry) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
 	parent := fmt.Sprintf("projects/%s/locations/%s/registries/%s", registry.ProjectID, registry.Region, registry.RegistryID)
 	_, err = client.Projects.Locations.Registries.Get(parent).Do()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
 	_, err = client.Projects.Locations.Registries.Delete(parent).Do()
 	if err != nil {
-		dr := model.Response{Message: "Error"}
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
 	log.Info().Msg("Deleted registry:")
 
-	dr := model.Response{Message: "Success"}
+	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }

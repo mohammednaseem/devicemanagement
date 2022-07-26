@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/go-playground/validator"
 
 	iotDelivery "github.com/gcp-iot/implementation/delivery/http"
 	iotService "github.com/gcp-iot/implementation/service/gcp"
@@ -45,6 +46,17 @@ func init() {
 	}
 }
 
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		// Optionally, you could return the error to give each route more control over the status code
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
+}
 func main() {
 
 	log.Info().Msg("Go Time")
@@ -62,6 +74,7 @@ func main() {
 		lecho.WithTimestamp(),
 		lecho.WithCaller(),
 	)
+	e.Validator = &CustomValidator{validator: validator.New()}
 	e.Logger = logger
 	e.Use(lecho.Middleware(lecho.Config{
 		Logger: logger}))
@@ -82,9 +95,11 @@ func main() {
 		log.Error().Msg("Configuration Error: ENV_PPSA address not available")
 	}
 
-	_iotService := iotService.NewRegistryService(gcpurl)
-	_iotUsecase := iotUsecase.NewIoTUsecase(_iotService, timeoutContext)
-	iotDelivery.NewIoTtHandler(e, _iotUsecase)
+	_deviceService := iotService.NewDeviceService(gcpurl)
+	_deviceUsecase := iotUsecase.NewDeviceUsecase(_deviceService, timeoutContext)
+	_registryService := iotService.NewRegistryService(gcpurl)
+	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
+	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)
 
 	log.Fatal().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
 }

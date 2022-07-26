@@ -1,16 +1,17 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/gcp-iot/model"
 	"github.com/labstack/echo"
 	"github.com/rs/zerolog/log"
-	"net/http"
 )
 
 func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.Request)
+	req := new(model.RequestRegistry)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -32,7 +33,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.Request)
+	req := new(model.RequestRegistry)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -54,7 +55,7 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.Request)
+	req := new(model.RequestRegistry)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -67,6 +68,7 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 		TopicName:  req.TopicName,
 	}
 	mResponse, err := r.rUsecase.DeleteRegistry(ctx, reg)
+
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(http.StatusInternalServerError, mResponse.Message)

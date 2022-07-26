@@ -7,12 +7,11 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (i *registryUsecase) CreateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (i *deviceUsecase) CreateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	var cancel context.CancelFunc
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
-
-	dr, err := i.registryService.CreateRegistry(registry)
+	dr, err := i.deviceService.CreateDevice(dev)
 	if err != nil {
 
 		return dr, err
@@ -20,12 +19,12 @@ func (i *registryUsecase) CreateRegistry(ctx context.Context, registry model.Reg
 	}
 	return dr, nil
 }
-func (i *registryUsecase) UpdateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (i *deviceUsecase) UpdateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	var cancel context.CancelFunc
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
-	dr, err := i.registryService.UpdateRegistry(registry)
+	dr, err := i.deviceService.UpdateDevice(dev)
 	if err != nil {
 
 		return dr, err
@@ -33,12 +32,12 @@ func (i *registryUsecase) UpdateRegistry(ctx context.Context, registry model.Reg
 	}
 	return dr, nil
 }
-func (i *registryUsecase) DeleteRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (i *deviceUsecase) DeleteDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	var cancel context.CancelFunc
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
-	dr, err := i.registryService.DeleteRegistry(registry)
+	dr, err := i.deviceService.DeleteDevice(dev)
 	if err != nil {
 
 		return dr, err
