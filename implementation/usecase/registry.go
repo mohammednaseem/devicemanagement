@@ -12,7 +12,7 @@ func (i *registryUsecase) CreateRegistry(ctx context.Context, registry model.Reg
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
-	dr, err := i.registryService.CreateRegistry(registry)
+	dr, err := i.registryService.CreateRegistry(ctx, registry)
 	if err != nil {
 
 		return dr, err
@@ -25,7 +25,7 @@ func (i *registryUsecase) UpdateRegistry(ctx context.Context, registry model.Reg
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
-	dr, err := i.registryService.UpdateRegistry(registry)
+	dr, err := i.registryService.UpdateRegistry(ctx, registry)
 	if err != nil {
 
 		return dr, err
@@ -38,7 +38,7 @@ func (i *registryUsecase) DeleteRegistry(ctx context.Context, registry model.Reg
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
-	dr, err := i.registryService.DeleteRegistry(registry)
+	dr, err := i.registryService.DeleteRegistry(ctx, registry)
 	if err != nil {
 
 		return dr, err

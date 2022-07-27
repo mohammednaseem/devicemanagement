@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gcp-iot/model"
@@ -9,7 +10,7 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (*deviceIotService) CreateDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -51,7 +52,7 @@ func (*deviceIotService) CreateDevice(dev model.Device) (model.Response, error) 
 	return dr, err
 }
 
-func (*deviceIotService) UpdateDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{Message: err.Error()}
@@ -80,7 +81,7 @@ func (*deviceIotService) UpdateDevice(dev model.Device) (model.Response, error) 
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (*deviceIotService) DeleteDevice(dev model.Device) (model.Response, error) {
+func (*deviceIotService) DeleteDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
