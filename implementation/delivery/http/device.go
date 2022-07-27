@@ -8,10 +8,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (r *registrytHandler) NewRegistry(c echo.Context) error {
+func (r *registrytHandler) NewDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RequestDevice)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -20,24 +20,25 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:   req.ProjectID,
-		Region:      req.Region,
-		RegistryID:  req.RegistryID,
-		TopicName:   req.TopicName,
-		Certificate: req.Certificate,
+	reg := model.Device{
+		ProjectID:       req.ProjectID,
+		Region:          req.Region,
+		RegistryID:      req.RegistryID,
+		PublicKeyFormat: req.PublicKeyFormat,
+		KeyBytes:        req.KeyBytes,
+		DeviceID:        req.DeviceID,
 	}
-	mResponse, err := r.rUsecase.CreateRegistry(ctx, reg)
+	mResponse, err := r.dUsecase.CreateDevice(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(http.StatusInternalServerError, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
-func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
+func (r *registrytHandler) UpdateDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RequestDevice)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -46,23 +47,25 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:  req.ProjectID,
-		Region:     req.Region,
-		RegistryID: req.RegistryID,
-		TopicName:  req.TopicName,
+	reg := model.Device{
+		ProjectID:       req.ProjectID,
+		Region:          req.Region,
+		RegistryID:      req.RegistryID,
+		PublicKeyFormat: req.PublicKeyFormat,
+		KeyBytes:        req.KeyBytes,
+		DeviceID:        req.DeviceID,
 	}
-	mResponse, err := r.rUsecase.UpdateRegistry(ctx, reg)
+	mResponse, err := r.dUsecase.UpdateDevice(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(http.StatusInternalServerError, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
-func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
+func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RequestDevice)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
@@ -71,13 +74,15 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:  req.ProjectID,
-		Region:     req.Region,
-		RegistryID: req.RegistryID,
-		TopicName:  req.TopicName,
+	reg := model.Device{
+		ProjectID:       req.ProjectID,
+		Region:          req.Region,
+		RegistryID:      req.RegistryID,
+		PublicKeyFormat: req.PublicKeyFormat,
+		KeyBytes:        req.KeyBytes,
+		DeviceID:        req.DeviceID,
 	}
-	mResponse, err := r.rUsecase.DeleteRegistry(ctx, reg)
+	mResponse, err := r.dUsecase.DeleteDevice(ctx, reg)
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
