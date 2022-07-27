@@ -1,5 +1,10 @@
 {
     "debug" : "true",
-    "ENV_AUTH_SERVER": ":8091"
+    "ENV_AUTH_SERVER": ":8091",
+    "ServiceType": "gcp",
+    "MongoCS": "mongodb://localhost:27017",
+    "MongoDB": "test",
+    "RegistryCollection": "Reg",
+    "DeviceCollection": "Dev"
 
 }

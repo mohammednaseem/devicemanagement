@@ -10,8 +10,10 @@ import (
 	"github.com/go-playground/validator"
 
 	iotDelivery "github.com/gcp-iot/implementation/delivery/http"
-	iotService "github.com/gcp-iot/implementation/service/gcp"
+	gcpService "github.com/gcp-iot/implementation/service/gcp"
+	koreService "github.com/gcp-iot/implementation/service/kore"
 	iotUsecase "github.com/gcp-iot/implementation/usecase"
+	"github.com/gcp-iot/model"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -86,19 +88,51 @@ func main() {
 
 	timeoutContext := time.Duration(viper.GetInt("CONTEXT.TIMEOUT")) * time.Second
 
-	gcpurl := viper.GetString("ENV_GCPPORT")
-	if gcpurl == "" {
-		gcpurl = viper.GetString(`gcp_port`)
+	serviceType := viper.GetString("ServiceType")
+	if serviceType == "" {
+		log.Error().Msg("Configuration Error: ServiceType not available")
+
+	}
+	var _deviceService model.IDeviceService
+	var _registryService model.IRegistryService
+	var _deviceUsecase model.IDevicerUsecase
+	var _registryUsecase model.IRegistryrUsecase
+	if serviceType == "gcp" {
+		gcpurl := viper.GetString("ENV_GCPPORT")
+		if gcpurl == "" {
+			log.Error().Msg("Configuration Error: ENV_GCPPORT address not available")
+
+		}
+		_deviceService = gcpService.NewDeviceService(gcpurl)
+		_registryService = gcpService.NewRegistryService(gcpurl)
+		_deviceUsecase = iotUsecase.NewDeviceUsecase(_deviceService, timeoutContext)
+		_registryUsecase = iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
+
+	} else if serviceType == "kore" {
+		MongoCS := viper.GetString("MongoCS")
+		if MongoCS == "" {
+			log.Error().Msg("Configuration Error: MongoDB Connection String address not available")
+
+		}
+		MongoDB := viper.GetString("MongoDB")
+		if MongoDB == "" {
+			log.Error().Msg("Configuration Error: MongoDB Database String not available")
+
+		}
+		RegistryCollection := viper.GetString("RegistryCollection")
+		if RegistryCollection == "" {
+			log.Error().Msg("Configuration Error: MongoDB Registry Collection String not available")
+
+		}
+		DeviceCollection := viper.GetString("DeviceCollection")
+		if DeviceCollection == "" {
+			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
+
+		}
+	} else {
+		log.Fatal().Msg("Configuration Error: Service Type Not Found")
 	}
 
-	if gcpurl == "" {
-		log.Error().Msg("Configuration Error: ENV_PPSA address not available")
-	}
-
-	_deviceService := iotService.NewDeviceService(gcpurl)
-	_deviceUsecase := iotUsecase.NewDeviceUsecase(_deviceService, timeoutContext)
-	_registryService := iotService.NewRegistryService(gcpurl)
-	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
 	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)
 
 	log.Fatal().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")

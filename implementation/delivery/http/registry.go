@@ -17,11 +17,15 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	if err := c.Validate(req); err != nil {
+		return err
+	}
 	reg := model.Registry{
-		ProjectID:  req.ProjectID,
-		Region:     req.Region,
-		RegistryID: req.RegistryID,
-		TopicName:  req.TopicName,
+		ProjectID:   req.ProjectID,
+		Region:      req.Region,
+		RegistryID:  req.RegistryID,
+		TopicName:   req.TopicName,
+		Certificate: req.Certificate,
 	}
 	mResponse, err := r.rUsecase.CreateRegistry(ctx, reg)
 	if mResponse.StatusCode != 200 {
@@ -38,6 +42,9 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
+	}
+	if err := c.Validate(req); err != nil {
+		return err
 	}
 	reg := model.Registry{
 		ProjectID:  req.ProjectID,
@@ -60,6 +67,9 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
+	}
+	if err := c.Validate(req); err != nil {
+		return err
 	}
 	reg := model.Registry{
 		ProjectID:  req.ProjectID,

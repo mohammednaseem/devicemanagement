@@ -2,10 +2,11 @@ package model
 
 /////// request
 type RequestRegistry struct {
-	ProjectID  string `json:"projectid" validate:"required"`
-	Region     string `json:"region" validate:"required"`
-	RegistryID string `json:"registryid" validate:"required"`
-	TopicName  string `json:"topicname"  validate:"required"`
+	ProjectID   string `json:"projectid" validate:"required"`
+	Region      string `json:"region" validate:"required"`
+	RegistryID  string `json:"registryid" validate:"required"`
+	TopicName   string `json:"topicname"  validate:"required"`
+	Certificate string `json:"certificate"  validate:""`
 }
 type RequestDevice struct {
 	ProjectID       string `json:"projectid" validate:"required"`
