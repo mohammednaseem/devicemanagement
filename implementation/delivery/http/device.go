@@ -31,7 +31,7 @@ func (r *registrytHandler) NewDevice(c echo.Context) error {
 	mResponse, err := r.dUsecase.CreateDevice(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
@@ -58,7 +58,7 @@ func (r *registrytHandler) UpdateDevice(c echo.Context) error {
 	mResponse, err := r.dUsecase.UpdateDevice(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
@@ -86,7 +86,7 @@ func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }

@@ -49,11 +49,10 @@ func close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc)
 // deadlines for process. context.CancelFunc will
 // be used to cancel context and resource
 // associated with it.
-func connect(uri string) (*mongo.Client, context.Context, context.CancelFunc, error) {
-	ctx, cancel := context.WithTimeout(context.Background(),
-		30*time.Second)
+func connect(uri string) (*mongo.Client, context.Context, error) {
+	ctx := context.Background()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	return client, ctx, cancel, err
+	return client, ctx, err
 }
 
 // This is a user defined method that accepts
@@ -176,7 +175,7 @@ func main() {
 
 		}
 		var err error
-		client, ctx, cancel, err = connect(MongoCS)
+		client, ctx, err = connect(MongoCS)
 		if err != nil {
 			panic(err)
 		}

@@ -30,7 +30,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	mResponse, err := r.rUsecase.CreateRegistry(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
@@ -55,7 +55,7 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 	mResponse, err := r.rUsecase.UpdateRegistry(ctx, reg)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
@@ -81,7 +81,7 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
-		return c.JSON(http.StatusInternalServerError, mResponse.Message)
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }

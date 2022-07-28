@@ -19,6 +19,6 @@ type RequestDevice struct {
 
 /////// response
 type Response struct {
-	StatusCode int    `json:"messgae"  validate:"required"`
-	Message    string `json:"messgae"  validate:"required"`
+	StatusCode int         `json:"statuscode"  validate:"required"`
+	Message    interface{} `json:"message"  validate:"required"`
 }
