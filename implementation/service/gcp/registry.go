@@ -27,7 +27,7 @@ func getClient() (*cloudiot.Service, error) {
 }
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (*registryIotService) CreateRegistry(ctx context.Context, registry model.RegistryCreate) (model.Response, error) {
+func (*registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -59,7 +59,7 @@ func (*registryIotService) CreateRegistry(ctx context.Context, registry model.Re
 	return dr, err
 }
 
-func (*registryIotService) UpdateRegistry(ctx context.Context, registry model.RegistryUpdate) (model.Response, error) {
+func (*registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{Message: err.Error()}
@@ -91,7 +91,7 @@ func (*registryIotService) UpdateRegistry(ctx context.Context, registry model.Re
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (*registryIotService) DeleteRegistry(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
+func (*registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}

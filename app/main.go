@@ -31,7 +31,7 @@ import (
 
 // This is a user defined method to close resources.
 // This method closes mongoDB connection and cancel context.
-func closeMongo(client *mongo.Client, ctx context.Context, cancel context.CancelFunc) {
+func closeMongo(ctx context.Context, client *mongo.Client, cancel context.CancelFunc) {
 	log.Info().Msg("Closing Mongo Conection")
 	defer cancel()
 	defer func() {
@@ -49,16 +49,16 @@ func closeMongo(client *mongo.Client, ctx context.Context, cancel context.Cancel
 // deadlines for process. context.CancelFunc will
 // be used to cancel context and resource
 // associated with it.
-func connect(uri string) (*mongo.Client, context.Context, error) {
+func connect(uri string) (context.Context, *mongo.Client, error) {
 	ctx := context.Background()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	return client, ctx, err
+	return ctx, client, err
 }
 
 // This is a user defined method that accepts
 // mongo.Client and context.Context
 // This method used to ping the mongoDB, return error if any.
-func ping(client *mongo.Client, ctx context.Context) error {
+func ping(ctx context.Context, client *mongo.Client) error {
 
 	// mongo.Client has Ping to ping mongoDB, deadline of
 	// the Ping method will be determined by cxt
@@ -175,13 +175,13 @@ func main() {
 
 		}
 		var err error
-		client, ctx, err = connect(MongoCS)
+		ctx, client, err = connect(MongoCS)
 		if err != nil {
 			panic(err)
 		}
-		ping(client, ctx)
-		_deviceService = koreService.NewDeviceService(client, DeviceCollection, MongoDB, ctx)
-		_registryService = koreService.NewRegistryService(client, RegistryCollection, MongoDB, ctx)
+		ping(ctx, client)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, MongoDB)
+		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB)
 
 	} else {
 		log.Fatal().Msg("Configuration Error: Service Type Not Found")
@@ -190,7 +190,7 @@ func main() {
 	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
 	defer func() {
 		if serviceType == "kore" {
-			closeMongo(client, ctx, cancel)
+			closeMongo(ctx, client, cancel)
 		}
 	}()
 	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)

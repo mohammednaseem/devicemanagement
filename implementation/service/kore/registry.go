@@ -11,20 +11,20 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.RegistryCreate) (model.Response, error) {
-	ping(r.client, r.ctx)
+func (r *registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
+	ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 	var queryResult model.RegistryCreate
-	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id != "" {
 		log.Error().Msg("Registry Already Exists")
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
 	}
-	insertOneResult, err := insertOne(r.client, r.ctx, r.database, r.collection, registry)
+	insertOneResult, err := insertOne(r.ctx, r.client, r.database, r.collection, registry)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -38,13 +38,13 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 	return dr, err
 }
 
-func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.RegistryUpdate) (model.Response, error) {
-	ping(r.client, r.ctx)
+func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
+	ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 	var queryResult model.RegistryCreate
-	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
@@ -75,7 +75,7 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	}
 
 	// Returns result of updated document and a error.
-	updateResult, err := UpdateOne(r.client, r.ctx, r.database, r.collection, filter, update)
+	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -88,14 +88,14 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
-	ping(r.client, r.ctx)
+func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}
 
 	// Returns result of deletion and error
-	result, err := deleteOne(r.client, r.ctx, r.database, r.collection, filter)
+	result, err := deleteOne(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
