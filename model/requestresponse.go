@@ -1,12 +1,21 @@
 package model
 
+import (
+	cloudiot "google.golang.org/api/cloudiot/v1"
+)
+
 /////// request
 type RequestRegistry struct {
-	ProjectID   string `json:"projectid" validate:"required"`
-	Region      string `json:"region" validate:"required"`
-	RegistryID  string `json:"registryid" validate:"required"`
-	TopicName   string `json:"topicname"  validate:"required"`
-	Certificate string `json:"certificate"  validate:""`
+	UpdateMask               string                              `json:"updatemask" validate:""`
+	Parent                   string                              `json:"parent" validate:"required"`
+	Id                       string                              `json:"id" validate:"required"`
+	Name                     string                              `json:"name" validate:"required"`
+	EventNotificationConfigs []*cloudiot.EventNotificationConfig `json:"eventNotificationConfigs" validate:"required"`
+	StateNotificationConfig  *cloudiot.StateNotificationConfig   `json:"stateNotificationConfig"  validate:""`
+	MqttConfig               cloudiot.MqttConfig                 `json:"mqttConfig"  validate:""`
+	HttpConfig               cloudiot.HttpConfig                 `json:"httpConfig"  validate:""`
+	LogLevel                 string                              `json:"logLevel"  validate:""`
+	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
 }
 type RequestDevice struct {
 	ProjectID       string `json:"projectid" validate:"required"`

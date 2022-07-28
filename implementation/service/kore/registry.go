@@ -14,12 +14,12 @@ import (
 func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: registry.ProjectID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
-	var queryResult model.Device
+	var queryResult model.Registry
 	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
-	if (queryResult != model.Device{}) {
+	if queryResult.Id != "" {
 		log.Error().Msg("Registry Already Exists")
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
@@ -41,7 +41,7 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: registry.ProjectID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 	var queryResult model.Device
 	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
@@ -52,15 +52,25 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 		return dr, err
 	}
 	filter = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: registry.ProjectID}}},
+		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "topicname", Value: registry.TopicName},
+			{Key: "mqttConfig", Value: registry.MqttConfig},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "certificate", Value: registry.Certificate},
+			{Key: "httpConfig", Value: registry.HttpConfig},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: registry.Credentials},
+		}}, {Key: "$set", Value: bson.D{
+			{Key: "logLevel", Value: registry.LogLevel},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "eventNotificationConfigs", Value: registry.EventNotificationConfigs},
+		}}, {Key: "$set", Value: bson.D{
+			{Key: "stateNotificationConfig", Value: registry.StateNotificationConfig},
 		}},
 	}
 
@@ -81,7 +91,7 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: registry.ProjectID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 
 	// Returns result of deletion and error
@@ -93,7 +103,7 @@ func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.
 	}
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
-	log.Info().Msg(fmt.Sprintf("%r", result.DeletedCount))
+	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }

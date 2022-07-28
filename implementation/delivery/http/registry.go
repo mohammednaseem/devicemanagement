@@ -17,17 +17,21 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	//req.Parent = c.Param("parent")
+	req.Parent = "projects/my-iot-356305/locations/asia-east"
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:   req.ProjectID,
-		Region:      req.Region,
-		RegistryID:  req.RegistryID,
-		TopicName:   req.TopicName,
-		Certificate: req.Certificate,
-	}
-	mResponse, err := r.rUsecase.CreateRegistry(ctx, reg)
+	// reg := model.Registry{
+	// 	ProjectID:   req.ProjectID,
+	// 	Region:      req.Region,
+	// 	RegistryID:  req.RegistryID,
+	// 	TopicName:   req.TopicName,
+	// 	Certificate: req.Certificate,
+	// }
+
+	var reg model.RequestRegistry = *req
+	mResponse, err := r.rUsecase.CreateRegistry(ctx, model.Registry(reg))
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -43,16 +47,13 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	req.UpdateMask = c.QueryParam("updateMask")
+	req.Parent = req.Name
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:  req.ProjectID,
-		Region:     req.Region,
-		RegistryID: req.RegistryID,
-		TopicName:  req.TopicName,
-	}
-	mResponse, err := r.rUsecase.UpdateRegistry(ctx, reg)
+	var reg model.RequestRegistry = *req
+	mResponse, err := r.rUsecase.UpdateRegistry(ctx, model.Registry(reg))
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -68,16 +69,12 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	req.Parent = req.Name
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Registry{
-		ProjectID:  req.ProjectID,
-		Region:     req.Region,
-		RegistryID: req.RegistryID,
-		TopicName:  req.TopicName,
-	}
-	mResponse, err := r.rUsecase.DeleteRegistry(ctx, reg)
+	var reg model.RequestRegistry = *req
+	mResponse, err := r.rUsecase.DeleteRegistry(ctx, model.Registry(reg))
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
