@@ -31,7 +31,7 @@ import (
 
 // This is a user defined method to close resources.
 // This method closes mongoDB connection and cancel context.
-func close(client *mongo.Client, ctx context.Context, cancel context.CancelFunc) {
+func closeMongo(client *mongo.Client, ctx context.Context, cancel context.CancelFunc) {
 	log.Info().Msg("Closing Mongo Conection")
 	defer cancel()
 	defer func() {
@@ -190,10 +190,10 @@ func main() {
 	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
 	defer func() {
 		if serviceType == "kore" {
-			close(client, ctx, cancel)
+			closeMongo(client, ctx, cancel)
 		}
 	}()
 	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)
-	log.Fatal().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
+	log.Error().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
 
 }

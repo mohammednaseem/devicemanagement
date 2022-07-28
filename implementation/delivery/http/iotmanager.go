@@ -15,7 +15,7 @@ func NewIoTtHandler(e *echo.Echo, registryUsecase model.IRegistryrUsecase, devic
 		rUsecase: registryUsecase,
 		dUsecase: deviceUsecase,
 	}
-	e.POST("/registry", RegistrytHandler.NewRegistry)
+	e.POST("/registry/:parent1/:parent2/:parent3/:parent4", RegistrytHandler.NewRegistry)
 	e.PATCH("/registry", RegistrytHandler.UpdateRegistry)
 	e.DELETE("/registry", RegistrytHandler.DeleteRegistry)
 	e.POST("/device", RegistrytHandler.NewDevice)
