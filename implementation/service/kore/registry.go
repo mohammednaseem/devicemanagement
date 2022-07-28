@@ -11,12 +11,12 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.RegistryCreate) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
-	var queryResult model.Registry
+	var queryResult model.RegistryCreate
 	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id != "" {
@@ -38,12 +38,12 @@ func (r *registryIotService) CreateRegistry(ctx context.Context, registry model.
 	return dr, err
 }
 
-func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.RegistryUpdate) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
-	var queryResult model.Registry
+	var queryResult model.RegistryCreate
 	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id == "" {
@@ -88,10 +88,10 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.Registry) (model.Response, error) {
+func (r *registryIotService) DeleteRegistry(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
 	ping(r.client, r.ctx)
 	var filter interface{} = bson.D{
-		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}
 
 	// Returns result of deletion and error

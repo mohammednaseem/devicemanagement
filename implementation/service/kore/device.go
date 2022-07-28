@@ -12,12 +12,12 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (d *deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (d *deviceIotService) CreateDevice(ctx context.Context, dev model.DeviceCreate) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
-	var queryResult model.Device
+	var queryResult model.DeviceCreate
 	err := queryOne(d.client, d.ctx, d.database, d.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id != "" {
@@ -39,12 +39,12 @@ func (d *deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (
 	return dr, err
 }
 
-func (d *deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (d *deviceIotService) UpdateDevice(ctx context.Context, dev model.DeviceUpdate) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
-	var queryResult model.Device
+	var queryResult model.DeviceCreate
 	err := queryOne(d.client, d.ctx, d.database, d.collection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id == "" {
@@ -82,10 +82,10 @@ func (d *deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (d *deviceIotService) DeleteDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (d *deviceIotService) DeleteDevice(ctx context.Context, dev model.DeviceDelete) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
-		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
 	}
 
 	// Returns result of deletion and error

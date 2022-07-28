@@ -11,13 +11,14 @@ import (
 func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RegistryCreate)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4")
+	req.Name = req.Parent + "/registries/" + req.Id
 	//req.Parent = "projects/my-iot-356305/locations/asia-east1"
 	if err := c.Validate(req); err != nil {
 		return err
@@ -30,8 +31,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	// 	Certificate: req.Certificate,
 	// }
 
-	var reg model.RequestRegistry = *req
-	mResponse, err := r.rUsecase.CreateRegistry(ctx, model.Registry(reg))
+	mResponse, err := r.rUsecase.CreateRegistry(ctx, *req)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -41,19 +41,19 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RegistryUpdate)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.UpdateMask = c.QueryParam("updateMask")
-	req.Parent = req.Name
+	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
+	req.Name = req.Parent
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	var reg model.RequestRegistry = *req
-	mResponse, err := r.rUsecase.UpdateRegistry(ctx, model.Registry(reg))
+	mResponse, err := r.rUsecase.UpdateRegistry(ctx, *req)
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -63,18 +63,17 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	req := new(model.RequestRegistry)
+	req := new(model.RegistryDelete)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
-	req.Parent = req.Name
+	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	var reg model.RequestRegistry = *req
-	mResponse, err := r.rUsecase.DeleteRegistry(ctx, model.Registry(reg))
+	mResponse, err := r.rUsecase.DeleteRegistry(ctx, *req)
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")

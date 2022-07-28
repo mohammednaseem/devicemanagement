@@ -9,7 +9,7 @@ import (
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (*deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (*deviceIotService) CreateDevice(ctx context.Context, dev model.DeviceCreate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -39,7 +39,7 @@ func (*deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (mo
 	return dr, err
 }
 
-func (*deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (*deviceIotService) UpdateDevice(ctx context.Context, dev model.DeviceUpdate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{Message: err.Error()}
@@ -71,7 +71,7 @@ func (*deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (mo
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-func (*deviceIotService) DeleteDevice(ctx context.Context, dev model.Device) (model.Response, error) {
+func (*deviceIotService) DeleteDevice(ctx context.Context, dev model.DeviceDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -85,7 +85,7 @@ func (*deviceIotService) DeleteDevice(ctx context.Context, dev model.Device) (mo
 		return dr, err
 	}
 
-	log.Info().Msg("Deleted device: \n" + dev.Id)
+	log.Info().Msg("Deleted device: \n")
 
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err

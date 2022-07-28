@@ -9,7 +9,7 @@ type RequestRegistry struct {
 	UpdateMask               string                              `json:"updatemask" validate:""`
 	Parent                   string                              `json:"parent" validate:"required"`
 	Id                       string                              `json:"id" validate:"required"`
-	Name                     string                              `json:"name" validate:"required"`
+	Name                     string                              `json:"name" validate:""`
 	EventNotificationConfigs []*cloudiot.EventNotificationConfig `json:"eventNotificationConfigs" validate:"required"`
 	StateNotificationConfig  *cloudiot.StateNotificationConfig   `json:"stateNotificationConfig"  validate:""`
 	MqttConfig               cloudiot.MqttConfig                 `json:"mqttConfig"  validate:""`
@@ -21,7 +21,7 @@ type RequestDevice struct {
 	UpdateMask  string                       `json:"updatemask" validate:""`
 	Parent      string                       `json:"parent" validate:"required"`
 	Id          string                       `json:"id" validate:"required"`
-	Name        string                       `json:"name" validate:"required"`
+	Name        string                       `json:"name" validate:""`
 	Credentials []*cloudiot.DeviceCredential `json:"credentials" validate:"required"`
 	LogLevel    string                       `json:"logLevel"  validate:""`
 	Blocked     bool                         `json:"blocked"  validate:""`
