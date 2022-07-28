@@ -43,34 +43,34 @@ func (r *registryIotService) UpdateRegistry(ctx context.Context, registry model.
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
-	var queryResult model.Device
+	var queryResult model.Registry
 	err := queryOne(r.client, r.ctx, r.database, r.collection, filter).Decode(&queryResult)
 	var dr model.Response
-	if (queryResult == model.Device{}) {
+	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
 		dr = model.Response{StatusCode: 404, Message: "Not Found"}
 		return dr, err
 	}
 	filter = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "mqttConfig", Value: registry.MqttConfig},
+			{Key: "mqttconfig", Value: registry.MqttConfig},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "httpConfig", Value: registry.HttpConfig},
+			{Key: "httpconfig", Value: registry.HttpConfig},
 		}},
 		{Key: "$set", Value: bson.D{
 			{Key: "credentials", Value: registry.Credentials},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "logLevel", Value: registry.LogLevel},
+			{Key: "loglevel", Value: registry.LogLevel},
 		}},
 		{Key: "$set", Value: bson.D{
-			{Key: "eventNotificationConfigs", Value: registry.EventNotificationConfigs},
+			{Key: "eventnotificationconfigs", Value: registry.EventNotificationConfigs},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "stateNotificationConfig", Value: registry.StateNotificationConfig},
+			{Key: "statenotificationconfig", Value: registry.StateNotificationConfig},
 		}},
 	}
 
