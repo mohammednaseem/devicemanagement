@@ -17,10 +17,12 @@ type Registry struct {
 	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
 }
 type Device struct {
-	ProjectID       string `json:"projectid" validate:"required"`
-	Region          string `json:"region" validate:"required"`
-	RegistryID      string `json:"registryid" validate:"required"`
-	PublicKeyFormat string `json:"publickeyformat"  validate:"required"`
-	KeyBytes        string `json:"keybytes"  validate:""`
-	DeviceID        string `json:"deviceid"  validate:"required"`
+	UpdateMask  string                       `json:"updatemask" validate:""`
+	Parent      string                       `json:"parent" validate:"required"`
+	Id          string                       `json:"id" validate:"required"`
+	Name        string                       `json:"name" validate:"required"`
+	Credentials []*cloudiot.DeviceCredential `json:"credentials" validate:"required"`
+	LogLevel    string                       `json:"logLevel"  validate:""`
+	Blocked     bool                         `json:"blocked"  validate:""`
+	Metadata    map[string]string            `json:"metadata"  validate:""`
 }

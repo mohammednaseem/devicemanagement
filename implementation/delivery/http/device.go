@@ -17,18 +17,12 @@ func (r *registrytHandler) NewDevice(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Device{
-		ProjectID:       req.ProjectID,
-		Region:          req.Region,
-		RegistryID:      req.RegistryID,
-		PublicKeyFormat: req.PublicKeyFormat,
-		KeyBytes:        req.KeyBytes,
-		DeviceID:        req.DeviceID,
-	}
-	mResponse, err := r.dUsecase.CreateDevice(ctx, reg)
+	var reg model.RequestDevice = *req
+	mResponse, err := r.dUsecase.CreateDevice(ctx, model.Device(reg))
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -44,18 +38,13 @@ func (r *registrytHandler) UpdateDevice(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	req.UpdateMask = c.QueryParam("updateMask")
+	req.Parent = req.Name
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Device{
-		ProjectID:       req.ProjectID,
-		Region:          req.Region,
-		RegistryID:      req.RegistryID,
-		PublicKeyFormat: req.PublicKeyFormat,
-		KeyBytes:        req.KeyBytes,
-		DeviceID:        req.DeviceID,
-	}
-	mResponse, err := r.dUsecase.UpdateDevice(ctx, reg)
+	var reg model.RequestDevice = *req
+	mResponse, err := r.dUsecase.UpdateDevice(ctx, model.Device(reg))
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")
 		return c.JSON(mResponse.StatusCode, mResponse.Message)
@@ -71,18 +60,12 @@ func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 		r := model.Response{Message: "Data not good"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
+	req.Parent = req.Name
 	if err := c.Validate(req); err != nil {
 		return err
 	}
-	reg := model.Device{
-		ProjectID:       req.ProjectID,
-		Region:          req.Region,
-		RegistryID:      req.RegistryID,
-		PublicKeyFormat: req.PublicKeyFormat,
-		KeyBytes:        req.KeyBytes,
-		DeviceID:        req.DeviceID,
-	}
-	mResponse, err := r.dUsecase.DeleteDevice(ctx, reg)
+	var reg model.RequestDevice = *req
+	mResponse, err := r.dUsecase.DeleteDevice(ctx, model.Device(reg))
 
 	if mResponse.StatusCode != 200 {
 		log.Error().Err(err).Msg("")

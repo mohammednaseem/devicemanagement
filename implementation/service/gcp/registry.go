@@ -72,6 +72,9 @@ func (*registryIotService) UpdateRegistry(ctx context.Context, registry model.Re
 		return dr, err
 	}
 	devRegistry.EventNotificationConfigs = registry.EventNotificationConfigs
+	devRegistry.StateNotificationConfig = registry.StateNotificationConfig
+	devRegistry.HttpConfig = &registry.HttpConfig
+	devRegistry.MqttConfig = &registry.MqttConfig
 	devRegistry.Id = ""
 	response, err := client.Projects.Locations.Registries.Patch(registry.Parent, devRegistry).UpdateMask(registry.UpdateMask).Do()
 	if err != nil {

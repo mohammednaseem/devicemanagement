@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gcp-iot/model"
@@ -20,7 +19,6 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4")
 	//req.Parent = "projects/my-iot-356305/locations/asia-east1"
-	fmt.Printf(req.Parent)
 	if err := c.Validate(req); err != nil {
 		return err
 	}
