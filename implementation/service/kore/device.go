@@ -15,12 +15,12 @@ import (
 func (d *deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: dev.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: dev.ProjectID}}}, {Key: "deviceid", Value: bson.D{{Key: "$eq", Value: dev.DeviceID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 	var queryResult model.Device
 	err := queryOne(d.client, d.ctx, d.database, d.collection, filter).Decode(&queryResult)
 	var dr model.Response
-	if (queryResult != model.Device{}) {
+	if queryResult.Id != "" {
 		log.Error().Msg("Device Already Exists")
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
@@ -42,26 +42,29 @@ func (d *deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (
 func (d *deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: dev.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: dev.ProjectID}}}, {Key: "deviceid", Value: bson.D{{Key: "$eq", Value: dev.DeviceID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 	var queryResult model.Device
 	err := queryOne(d.client, d.ctx, d.database, d.collection, filter).Decode(&queryResult)
 	var dr model.Response
-	if (queryResult == model.Device{}) {
+	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
 		dr = model.Response{StatusCode: 404, Message: "Not Found"}
 		return dr, err
 	}
 	filter = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: dev.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: dev.ProjectID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "publickeyformat", Value: dev.PublicKeyFormat},
+			{Key: "blocked", Value: dev.Blocked},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "keybytes", Value: dev.KeyBytes},
+			{Key: "metadata", Value: dev.Metadata},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: dev.Credentials},
 		}},
 	}
 
@@ -82,7 +85,7 @@ func (d *deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (
 func (d *deviceIotService) DeleteDevice(ctx context.Context, dev model.Device) (model.Response, error) {
 	ping(d.client, d.ctx)
 	var filter interface{} = bson.D{
-		{Key: "registryid", Value: bson.D{{Key: "$eq", Value: dev.RegistryID}}}, {Key: "projectid", Value: bson.D{{Key: "$eq", Value: dev.ProjectID}}}, {Key: "deviceid", Value: bson.D{{Key: "$eq", Value: dev.DeviceID}}},
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 
 	// Returns result of deletion and error
