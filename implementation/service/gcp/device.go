@@ -2,7 +2,7 @@ package gcp
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
 	cloudiot "google.golang.org/api/cloudiot/v1"
@@ -19,7 +19,7 @@ func (*deviceIotService) CreateDevice(ctx context.Context, dev model.Device) (mo
 	var device cloudiot.Device
 
 	device.Id = dev.Id
-	device.Name = dev.Name
+	device.Name = ""
 	device.Blocked = dev.Blocked
 	device.Credentials = dev.Credentials
 	device.LogLevel = dev.LogLevel
@@ -52,6 +52,7 @@ func (*deviceIotService) UpdateDevice(ctx context.Context, dev model.Device) (mo
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
+	fmt.Print(device)
 	device.Blocked = dev.Blocked
 	device.Credentials = dev.Credentials
 	device.Metadata = dev.Metadata
