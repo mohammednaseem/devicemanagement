@@ -77,8 +77,8 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	}
 
 	// print count of documents that affected
-	fmt.Println("update single document")
-	fmt.Println(updateResult.ModifiedCount)
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
@@ -98,6 +98,25 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+	dr := model.Response{StatusCode: 200, Message: "Success"}
+	return dr, err
+}
+func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
+	ping(d.ctx, d.client)
+	var filter interface{} = bson.D{
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	var queryResult model.DeviceCreate
+	err := queryOne(d.ctx, d.client, d.database, d.collection, filter).Decode(&queryResult)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Device" + queryResult.Id)
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }

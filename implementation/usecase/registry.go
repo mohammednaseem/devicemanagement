@@ -46,3 +46,16 @@ func (i *registryUsecase) DeleteRegistry(ctx context.Context, registry model.Reg
 	}
 	return dr, nil
 }
+func (i *registryUsecase) GetRegistry(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.GetRegistry(ctx, registry)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}

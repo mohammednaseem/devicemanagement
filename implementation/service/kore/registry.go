@@ -83,8 +83,8 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	}
 
 	// print count of documents that affected
-	fmt.Println("update single document")
-	fmt.Println(updateResult.ModifiedCount)
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
@@ -104,6 +104,25 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+	dr := model.Response{StatusCode: 200, Message: "Success"}
+	return dr, err
+}
+func (r *registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Registry " + queryResult.Id)
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
