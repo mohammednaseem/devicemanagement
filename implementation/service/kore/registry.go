@@ -123,6 +123,6 @@ func (r *registryIotService) GetRegistry(_ context.Context, registry model.Regis
 	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registry " + queryResult.Id)
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.Response{StatusCode: 200, Message: queryResult}
 	return dr, err
 }

@@ -90,3 +90,22 @@ func (*deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelete)
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
+func (*deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
+	client, err := getClient()
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+
+	device, err := client.Projects.Locations.Registries.Devices.Get(dev.Parent).Do()
+	if err != nil {
+		//log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+
+	log.Info().Msg("Got device: \n")
+
+	dr := model.Response{StatusCode: 200, Message: device}
+	return dr, err
+}

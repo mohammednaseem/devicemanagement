@@ -6,6 +6,7 @@ import (
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -69,6 +70,28 @@ func insertOne(ctx context.Context, client *mongo.Client, dataBase, col string, 
 	// and of empty interface
 	result, err := collection.InsertOne(ctx, doc)
 	return result, err
+}
+
+// query is user defined method used to query MongoDB,
+// that accepts mongo.client,context, database name,
+// collection name, a query and field.
+
+//  database name and collection name is of type
+// string. query is of type interface.
+// field is of type interface, which limits
+// the field being returned.
+
+// query method returns a cursor and error.
+func query(client *mongo.Client, ctx context.Context, dataBase, col string, query, field interface{}) (result *mongo.Cursor, err error) {
+
+	// select database and collection.
+	collection := client.Database(dataBase).Collection(col)
+
+	// collection has an method Find,
+	// that returns a mongo.cursor
+	// based on query and field.
+	result, err = collection.Find(ctx, query, options.Find().SetProjection(field))
+	return
 }
 
 // query is user defined method used to query MongoDB,

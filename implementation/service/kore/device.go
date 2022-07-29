@@ -117,6 +117,6 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Device" + queryResult.Id)
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.Response{StatusCode: 200, Message: queryResult}
 	return dr, err
 }
