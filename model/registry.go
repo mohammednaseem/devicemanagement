@@ -39,6 +39,7 @@ type RegistryDelete struct {
 type DeviceCreate struct {
 	Project     string                       `json:"project" validate:"required"`
 	Parent      string                       `json:"parent" validate:"required"`
+	NumId       string                       `json:"numId" validate:""`
 	Region      string                       `json:"region" validate:"required"`
 	Registry    string                       `json:"registry" validate:"required"`
 	Id          string                       `json:"id" validate:"required"`

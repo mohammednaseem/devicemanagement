@@ -117,7 +117,7 @@ func (*deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete) (
 		return dr, err
 	}
 
-	device, err := client.Projects.Locations.Registries.Devices.Get(dev.Parent).Do()
+	device, err := client.Projects.Locations.Registries.Devices.List(dev.Parent).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}

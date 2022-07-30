@@ -3,6 +3,7 @@ package kore
 import (
 	"context"
 	"fmt"
+	"math/rand"
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
@@ -25,6 +26,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
 	}
+	dev.NumId = fmt.Sprintf("%d%d", rand.Int(), rand.Int())
 	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.collection, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -152,8 +154,21 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
 		return dr, err
 	}
+	type resultNode struct {
+		Id    string `json:"id" validate:"required"`
+		NumID string `json:"numId" validate:"required"`
+	}
+	type resultStruct struct {
+		Devices []resultNode `json:"devices" validate:"required"`
+	}
+	var result resultStruct
+	for _, element := range results {
+		node := resultNode{Id: element.Id, NumID: element.NumId}
+		result.Devices = append(result.Devices, node)
+	}
+
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Devices ")
-	dr := model.Response{StatusCode: 200, Message: results}
+	dr := model.Response{StatusCode: 200, Message: result}
 	return dr, err
 }

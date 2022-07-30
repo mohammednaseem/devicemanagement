@@ -159,8 +159,11 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
 		return dr, err
 	}
+	type result struct {
+		DeviceRegistries []model.RegistryCreate `json:"deviceRegistries" validate:"required"`
+	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
-	dr := model.Response{StatusCode: 200, Message: results}
+	dr := model.Response{StatusCode: 200, Message: result{DeviceRegistries: results}}
 	return dr, err
 }

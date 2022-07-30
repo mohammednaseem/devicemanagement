@@ -90,7 +90,7 @@ func query(ctx context.Context, client *mongo.Client, dataBase, col string, quer
 	// collection has an method Find,
 	// that returns a mongo.cursor
 	// based on query and field.
-	result, err = collection.Find(ctx, query, options.Find())
+	result, err = collection.Find(ctx, query, options.Find().SetLimit(10))
 	return
 }
 
