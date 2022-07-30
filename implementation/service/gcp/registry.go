@@ -133,3 +133,21 @@ func (*registryIotService) GetRegistry(_ context.Context, registry model.Registr
 	dr := model.Response{StatusCode: 200, Message: reg}
 	return dr, err
 }
+func (*registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	client, err := getClient()
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+
+	reg, err := client.Projects.Locations.Registries.Get(registry.Parent).Do()
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+
+	log.Info().Msg("Got registry:")
+
+	dr := model.Response{StatusCode: 200, Message: reg}
+	return dr, err
+}

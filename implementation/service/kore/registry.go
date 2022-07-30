@@ -121,8 +121,46 @@ func (r *registryIotService) GetRegistry(_ context.Context, registry model.Regis
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
+	if queryResult.Id == "" {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		return dr, err
+	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registry " + queryResult.Id)
 	dr := model.Response{StatusCode: 200, Message: queryResult}
+	return dr, err
+}
+func (r *registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "parent", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	//var queryResult model.RegistryCreate
+	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	var results []model.RegistryCreate
+
+	// to get bson object  from cursor,
+	// returns error if any.
+	if err := cursor.All(r.ctx, &results); err != nil {
+
+		// handle the error
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	if results == nil {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Registries ")
+	dr := model.Response{StatusCode: 200, Message: results}
 	return dr, err
 }

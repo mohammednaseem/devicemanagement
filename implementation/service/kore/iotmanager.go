@@ -82,7 +82,7 @@ func insertOne(ctx context.Context, client *mongo.Client, dataBase, col string, 
 // the field being returned.
 
 // query method returns a cursor and error.
-func query(client *mongo.Client, ctx context.Context, dataBase, col string, query, field interface{}) (result *mongo.Cursor, err error) {
+func query(ctx context.Context, client *mongo.Client, dataBase, col string, query interface{}) (result *mongo.Cursor, err error) {
 
 	// select database and collection.
 	collection := client.Database(dataBase).Collection(col)
@@ -90,7 +90,7 @@ func query(client *mongo.Client, ctx context.Context, dataBase, col string, quer
 	// collection has an method Find,
 	// that returns a mongo.cursor
 	// based on query and field.
-	result, err = collection.Find(ctx, query, options.Find().SetProjection(field))
+	result, err = collection.Find(ctx, query, options.Find())
 	return
 }
 

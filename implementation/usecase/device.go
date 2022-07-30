@@ -58,3 +58,16 @@ func (i *deviceUsecase) GetDevice(ctx context.Context, dev model.DeviceDelete) (
 	}
 	return dr, nil
 }
+func (i *deviceUsecase) GetDevices(ctx context.Context, dev model.DeviceDelete) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.deviceService.GetDevices(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}

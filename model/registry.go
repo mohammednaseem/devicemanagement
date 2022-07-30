@@ -6,6 +6,8 @@ import (
 
 type RegistryCreate struct {
 	Parent                   string                              `json:"parent" validate:"required"`
+	Project                  string                              `json:"project" validate:"required"`
+	Region                   string                              `json:"region" validate:"required"`
 	Id                       string                              `json:"id" validate:"required"`
 	Name                     string                              `json:"name" validate:"required"`
 	EventNotificationConfigs []*cloudiot.EventNotificationConfig `json:"eventNotificationConfigs" validate:"required"`
@@ -17,6 +19,8 @@ type RegistryCreate struct {
 }
 type RegistryUpdate struct {
 	UpdateMask               string                              `json:"updatemask" validate:"required"`
+	Project                  string                              `json:"project" validate:"required"`
+	Region                   string                              `json:"region" validate:"required"`
 	Parent                   string                              `json:"parent" validate:"required"`
 	Id                       string                              `json:"id" validate:"required"`
 	Name                     string                              `json:"name" validate:"required"`
@@ -28,10 +32,15 @@ type RegistryUpdate struct {
 	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
 }
 type RegistryDelete struct {
-	Parent string `json:"parent" validate:"required"`
+	Parent  string `json:"parent" validate:"required"`
+	Project string `json:"project" validate:"required"`
+	Region  string `json:"region" validate:"required"`
 }
 type DeviceCreate struct {
+	Project     string                       `json:"project" validate:"required"`
 	Parent      string                       `json:"parent" validate:"required"`
+	Region      string                       `json:"region" validate:"required"`
+	Registry    string                       `json:"registry" validate:"required"`
 	Id          string                       `json:"id" validate:"required"`
 	Name        string                       `json:"name" validate:"required"`
 	Credentials []*cloudiot.DeviceCredential `json:"credentials" validate:"required"`
@@ -41,6 +50,9 @@ type DeviceCreate struct {
 }
 type DeviceUpdate struct {
 	UpdateMask  string                       `json:"updatemask" validate:"required"`
+	Project     string                       `json:"project" validate:"required"`
+	Region      string                       `json:"region" validate:"required"`
+	Registry    string                       `json:"registry" validate:"required"`
 	Parent      string                       `json:"parent" validate:"required"`
 	Id          string                       `json:"id" validate:"required"`
 	Name        string                       `json:"name" validate:"required"`
@@ -50,5 +62,7 @@ type DeviceUpdate struct {
 	Metadata    map[string]string            `json:"metadata"  validate:""`
 }
 type DeviceDelete struct {
-	Parent string `json:"parent" validate:"required"`
+	Parent  string `json:"parent" validate:"required"`
+	Project string `json:"project" validate:"required"`
+	Region  string `json:"region" validate:"required"`
 }

@@ -116,7 +116,44 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 		return dr, err
 	}
 	// print the count of affected documents
+	if queryResult.Id == "" {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		return dr, err
+	}
 	log.Info().Msg("Got Details For Device" + queryResult.Id)
 	dr := model.Response{StatusCode: 200, Message: queryResult}
+	return dr, err
+}
+func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
+	ping(d.ctx, d.client)
+	var filter interface{} = bson.D{
+		{Key: "parent", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	cursor, err := query(d.ctx, d.client, d.database, d.collection, filter)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	var results []model.DeviceCreate
+
+	// to get bson object  from cursor,
+	// returns error if any.
+	if err := cursor.All(d.ctx, &results); err != nil {
+
+		// handle the error
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	if results == nil {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Devices ")
+	dr := model.Response{StatusCode: 200, Message: results}
 	return dr, err
 }
