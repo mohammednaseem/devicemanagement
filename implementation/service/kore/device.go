@@ -2,8 +2,9 @@ package kore
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
@@ -39,7 +40,14 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
 	}
-	dev.NumId = fmt.Sprintf("%d%d", rand.Int(), rand.Int())
+	nBig, err := rand.Int(rand.Reader, big.NewInt(999999999999999999))
+	if err != nil {
+		log.Error().Msg("Random Generator Failed")
+		dr = model.Response{StatusCode: 500, Message: "Internal Server Error"}
+		return dr, err
+	}
+	randNum := nBig.Int64()
+	dev.NumId = fmt.Sprintf("%d", randNum)
 	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.dcollection, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("")
