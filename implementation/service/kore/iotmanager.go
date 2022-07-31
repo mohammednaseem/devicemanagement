@@ -17,10 +17,11 @@ type registryIotService struct {
 	ctx        context.Context
 }
 type deviceIotService struct {
-	client     *mongo.Client
-	collection string
-	database   string
-	ctx        context.Context
+	client      *mongo.Client
+	rcollection string
+	dcollection string
+	database    string
+	ctx         context.Context
 }
 
 func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string) model.IRegistryService {
@@ -31,12 +32,13 @@ func NewRegistryService(ctx context.Context, conn *mongo.Client, collection stri
 		ctx:        ctx,
 	}
 }
-func NewDeviceService(ctx context.Context, conn *mongo.Client, collection string, database string) model.IDeviceService {
+func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection string, rcollection string, database string) model.IDeviceService {
 	return &deviceIotService{
-		client:     conn,
-		collection: collection,
-		database:   database,
-		ctx:        ctx,
+		client:      conn,
+		dcollection: dcollection, //device col
+		rcollection: rcollection, //registry col
+		database:    database,
+		ctx:         ctx,
 	}
 }
 

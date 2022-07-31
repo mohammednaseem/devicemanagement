@@ -15,19 +15,32 @@ import (
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
 func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreate) (model.Response, error) {
 	ping(d.ctx, d.client)
+	var rfilter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Registry}}},
+		{Key: "region", Value: bson.D{{Key: "$eq", Value: dev.Region}}},
+		{Key: "project", Value: bson.D{{Key: "$eq", Value: dev.Project}}},
+	}
+	var rqueryResult model.RegistryCreate
+	var dr model.Response
+	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
+	if rqueryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.Response{StatusCode: 404, Message: "Registry Not Found"}
+		return dr, err
+	}
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 	var queryResult model.DeviceCreate
-	err := queryOne(d.ctx, d.client, d.database, d.collection, filter).Decode(&queryResult)
-	var dr model.Response
+	err = queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
+
 	if queryResult.Id != "" {
 		log.Error().Msg("Device Already Exists")
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
 	}
 	dev.NumId = fmt.Sprintf("%d%d", rand.Int(), rand.Int())
-	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.collection, dev)
+	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.dcollection, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -47,7 +60,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 	var queryResult model.DeviceCreate
-	err := queryOne(d.ctx, d.client, d.database, d.collection, filter).Decode(&queryResult)
+	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	var dr model.Response
 	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
@@ -71,7 +84,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	}
 
 	// Returns result of updated document and a error.
-	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.collection, filter, update)
+	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.dcollection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -91,7 +104,7 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	}
 
 	// Returns result of deletion and error
-	result, err := deleteOne(d.ctx, d.client, d.database, d.collection, filter)
+	result, err := deleteOne(d.ctx, d.client, d.database, d.dcollection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -111,7 +124,7 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 
 	// Returns result of deletion and error
 	var queryResult model.DeviceCreate
-	err := queryOne(d.ctx, d.client, d.database, d.collection, filter).Decode(&queryResult)
+	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -133,7 +146,7 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 	}
 
 	// Returns result of deletion and error
-	cursor, err := query(d.ctx, d.client, d.database, d.collection, filter)
+	cursor, err := query(d.ctx, d.client, d.database, d.dcollection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}

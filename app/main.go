@@ -180,7 +180,7 @@ func main() {
 			panic(err)
 		}
 		ping(ctx, client)
-		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, MongoDB)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB)
 		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB)
 
 	} else {
