@@ -90,7 +90,7 @@ func main() {
 
 	timeoutContext := time.Duration(viper.GetInt("CONTEXT.TIMEOUT")) * time.Second
 
-	serviceType := viper.GetString("ServiceType")
+	serviceType := viper.GetString("ENV_SERVICE_TYPE")
 	if serviceType == "" {
 		log.Error().Msg("Configuration Error: ServiceType not available")
 
@@ -110,27 +110,27 @@ func main() {
 		_registryService = gcpService.NewRegistryService(gcpurl)
 
 	} else if serviceType == "kore" {
-		MongoCS := viper.GetString("MongoCS")
+		MongoCS := viper.GetString("ENV_MONGO_CS")
 		if MongoCS == "" {
 			log.Error().Msg("Configuration Error: MongoDB Connection String address not available")
 
 		}
-		MongoDB := viper.GetString("MongoDB")
+		MongoDB := viper.GetString("ENV_MONGO_DB")
 		if MongoDB == "" {
 			log.Error().Msg("Configuration Error: MongoDB Database String not available")
 
 		}
-		RegistryCollection := viper.GetString("RegistryCollection")
+		RegistryCollection := viper.GetString("ENV_REGISTRY_COLLECTION")
 		if RegistryCollection == "" {
 			log.Error().Msg("Configuration Error: MongoDB Registry Collection String not available")
 
 		}
-		DeviceCollection := viper.GetString("DeviceCollection")
+		DeviceCollection := viper.GetString("ENV_DEVICE_COLLECTION")
 		if DeviceCollection == "" {
 			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
 
 		}
-		PubTopic := viper.GetString("PubTopic")
+		PubTopic := viper.GetString("ENV_PUB_TOPIC")
 		if PubTopic == "" {
 			log.Error().Msg("Configuration Error: PubTopic not available")
 
