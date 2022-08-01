@@ -11,6 +11,7 @@ type registryIotService struct {
 	client     *mongo.Client
 	collection string
 	database   string
+	pubTopic   string
 	ctx        context.Context
 }
 type deviceIotService struct {
@@ -22,12 +23,13 @@ type deviceIotService struct {
 	ctx         context.Context
 }
 
-func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string) model.IRegistryService {
+func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string, PubTopic string) model.IRegistryService {
 	return &registryIotService{
 		client:     conn,
 		collection: collection,
 		database:   database,
 		ctx:        ctx,
+		pubTopic:   PubTopic,
 	}
 }
 func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection string, rcollection string, database string, PubTopic string) model.IDeviceService {

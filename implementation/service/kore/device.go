@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/gcp-iot/model"
@@ -17,7 +18,7 @@ import (
 
 func CreateDevicePublish(topicId string, dev model.DeviceCreate) error {
 
-	PubStruct := model.PublishCreate{Operation: "CREATE", Data: dev}
+	PubStruct := model.PublishDeviceCreate{Operation: "CREATE", Entity: "Device", Data: dev}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
@@ -84,7 +85,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 }
 func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
 
-	PubStruct := model.PublishUpdate{Operation: "UPDATE", Data: dev}
+	PubStruct := model.PublishDeviceUpdate{Operation: "UPDATE", Entity: "Device", Data: dev}
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -109,16 +110,24 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	filter = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
-
+	if strings.Contains(dev.UpdateMask, "blocked") {
+		queryResult.Blocked = dev.Blocked
+	}
+	if dev.Metadata != nil && strings.Contains(dev.UpdateMask, "metadata") {
+		queryResult.Metadata = dev.Metadata
+	}
+	if len(dev.Credentials) > 0 && strings.Contains(dev.UpdateMask, "credentials") {
+		queryResult.Credentials = dev.Credentials
+	}
 	// The field of the document that need to updated.
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "blocked", Value: dev.Blocked},
+			{Key: "blocked", Value: queryResult.Blocked},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "metadata", Value: dev.Metadata},
+			{Key: "metadata", Value: queryResult.Metadata},
 		}},
 		{Key: "$set", Value: bson.D{
-			{Key: "credentials", Value: dev.Credentials},
+			{Key: "credentials", Value: queryResult.Credentials},
 		}},
 	}
 
@@ -143,7 +152,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 }
 func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
 
-	PubStruct := model.PublishDelete{Operation: "DELETE", Data: dev}
+	PubStruct := model.PublishDeviceDelete{Operation: "DELETE", Entity: "Device", Data: dev}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {

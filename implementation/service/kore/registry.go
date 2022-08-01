@@ -2,7 +2,9 @@ package kore
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gcp-iot/model"
@@ -10,6 +12,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func CreateRegPublish(topicId string, dev model.RegistryCreate) error {
+
+	PubStruct := model.PublishRegistryCreate{Operation: "CREATE", Entity: "Registry", Data: dev}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
 func (r *registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
@@ -34,12 +50,27 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 	}
 	log.Info().Msg("Result of InsertOne")
 	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
-
+	err = CreateRegPublish(r.pubTopic, registry)
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr = model.Response{StatusCode: 200, Message: "Success"}
-
 	return dr, err
 }
+func UpdateRegPublish(topicId string, dev model.RegistryUpdate) error {
 
+	PubStruct := model.PublishRegistryUpdate{Operation: "UPDATE", Entity: "Registry", Data: dev}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
 func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
 	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
@@ -56,23 +87,30 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	filter = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
+	if registry.MqttConfig.MqttEnabledState != "" && strings.Contains(registry.UpdateMask, "mqtt_config") {
+		queryResult.MqttConfig.MqttEnabledState = registry.MqttConfig.MqttEnabledState
+	}
+	if registry.HttpConfig.HttpEnabledState != "" && strings.Contains(registry.UpdateMask, "http_config") {
+		queryResult.HttpConfig.HttpEnabledState = registry.HttpConfig.HttpEnabledState
+	}
+	if len(registry.EventNotificationConfigs) > 0 && strings.Contains(registry.UpdateMask, "event_notification_configs") {
+		queryResult.EventNotificationConfigs = registry.EventNotificationConfigs
+	}
+	if registry.StateNotificationConfig != nil && strings.Contains(registry.UpdateMask, "state_notification_config") {
+		queryResult.StateNotificationConfig = registry.StateNotificationConfig
+	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
-			{Key: "mqttconfig", Value: registry.MqttConfig},
+			{Key: "mqttconfig", Value: queryResult.MqttConfig},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "httpconfig", Value: registry.HttpConfig},
+			{Key: "httpconfig", Value: queryResult.HttpConfig},
 		}},
 		{Key: "$set", Value: bson.D{
-			{Key: "credentials", Value: registry.Credentials},
+			{Key: "eventnotificationconfigs", Value: queryResult.EventNotificationConfigs},
 		}}, {Key: "$set", Value: bson.D{
-			{Key: "loglevel", Value: registry.LogLevel},
-		}},
-		{Key: "$set", Value: bson.D{
-			{Key: "eventnotificationconfigs", Value: registry.EventNotificationConfigs},
-		}}, {Key: "$set", Value: bson.D{
-			{Key: "statenotificationconfig", Value: registry.StateNotificationConfig},
+			{Key: "statenotificationconfig", Value: queryResult.StateNotificationConfig},
 		}},
 	}
 
@@ -87,8 +125,26 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	// print count of documents that affected
 	log.Info().Msg("update single document")
 	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	err = UpdateRegPublish(r.pubTopic, registry)
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
+}
+func DeleteRegPublish(topicId string, dev model.RegistryDelete) error {
+
+	PubStruct := model.PublishRegistryDelete{Operation: "DELETE", Entity: "Registry", Data: dev}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
 }
 func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	Ping(r.ctx, r.client)
@@ -106,6 +162,11 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+	err = DeleteRegPublish(r.pubTopic, registry)
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }

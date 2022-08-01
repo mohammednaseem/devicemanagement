@@ -142,7 +142,7 @@ func main() {
 		}
 		koreService.Ping(ctx, client)
 		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic)
-		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB)
+		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic)
 
 	} else {
 		log.Fatal().Msg("Configuration Error: Service Type Not Found")
