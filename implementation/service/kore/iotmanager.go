@@ -5,32 +5,40 @@ import (
 
 	"github.com/gcp-iot/model"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type registryIotService struct {
-	connectionString string
-	Collection
-	Client
+	client     *mongo.Client
+	collection string
+	database   string
+	pubTopic   string
+	ctx        context.Context
 }
 type deviceIotService struct {
-	connectionString string
-	Collection
-	Client
+	client      *mongo.Client
+	rcollection string
+	dcollection string
+	database    string
+	pubTopic    string
+	ctx         context.Context
 }
 
-func NewRegistryService(conn string) model.IRegistryService {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		panic(err)
-	}
-	usersCollection := client.Database("testing").Collection("users")
+func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string, PubTopic string) model.IRegistryService {
 	return &registryIotService{
-		connectionString: conn,
+		client:     conn,
+		collection: collection,
+		database:   database,
+		ctx:        ctx,
+		pubTopic:   PubTopic,
 	}
 }
-func NewDeviceService(conn string) model.IDeviceService {
+func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection string, rcollection string, database string, PubTopic string) model.IDeviceService {
 	return &deviceIotService{
-		connectionString: conn,
+		client:      conn,
+		dcollection: dcollection, //device col
+		rcollection: rcollection, //registry col
+		database:    database,
+		ctx:         ctx,
+		pubTopic:    PubTopic,
 	}
 }

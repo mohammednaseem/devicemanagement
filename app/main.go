@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"net/http"
 	"os"
@@ -8,10 +9,11 @@ import (
 	"time"
 
 	"github.com/go-playground/validator"
+	"go.mongodb.org/mongo-driver/mongo"
 
-	iotDelivery "github.com/gcp-iot/implementation/delivery/http"
 	gcpService "github.com/gcp-iot/implementation/service/gcp"
 	koreService "github.com/gcp-iot/implementation/service/kore"
+	iotDelivery "github.com/gcp-iot/implementation/start/http"
 	iotUsecase "github.com/gcp-iot/implementation/usecase"
 	"github.com/gcp-iot/model"
 
@@ -95,8 +97,9 @@ func main() {
 	}
 	var _deviceService model.IDeviceService
 	var _registryService model.IRegistryService
-	var _deviceUsecase model.IDevicerUsecase
-	var _registryUsecase model.IRegistryrUsecase
+	var client *mongo.Client
+	var ctx context.Context
+	var cancel context.CancelFunc
 	if serviceType == "gcp" {
 		gcpurl := viper.GetString("ENV_GCPPORT")
 		if gcpurl == "" {
@@ -105,8 +108,6 @@ func main() {
 		}
 		_deviceService = gcpService.NewDeviceService(gcpurl)
 		_registryService = gcpService.NewRegistryService(gcpurl)
-		_deviceUsecase = iotUsecase.NewDeviceUsecase(_deviceService, timeoutContext)
-		_registryUsecase = iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
 
 	} else if serviceType == "kore" {
 		MongoCS := viper.GetString("MongoCS")
@@ -129,11 +130,31 @@ func main() {
 			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
 
 		}
+		PubTopic := viper.GetString("PubTopic")
+		if PubTopic == "" {
+			log.Error().Msg("Configuration Error: PubTopic not available")
+
+		}
+		var err error
+		ctx, client, err = koreService.Connect(MongoCS)
+		if err != nil {
+			panic(err)
+		}
+		koreService.Ping(ctx, client)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic)
+		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic)
+
 	} else {
 		log.Fatal().Msg("Configuration Error: Service Type Not Found")
 	}
-
+	_deviceUsecase := iotUsecase.NewDeviceUsecase(_deviceService, timeoutContext)
+	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
+	defer func() {
+		if serviceType == "kore" {
+			koreService.CloseMongo(ctx, client, cancel)
+		}
+	}()
 	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)
+	log.Error().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
 
-	log.Fatal().Err(e.Start(viper.GetString("ENV_AUTH_SERVER"))).Msg("")
 }

@@ -2,144 +2,231 @@ package kore
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/oauth2/google"
-	cloudiot "google.golang.org/api/cloudiot/v1"
-	"google.golang.org/api/option"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func CreateRegPublish(topicId string, dev model.RegistryCreate) error {
+
+	PubStruct := model.PublishRegistryCreate{Operation: "CREATE", Entity: "Registry", Data: dev}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
+
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
-func (*registryIotService) CreateRegistry(registry model.Registry) (model.Response, error) {
-	client, err := getClient()
+func (r *registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+	}
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	var dr model.Response
+	if queryResult.Id != "" {
+		log.Error().Msg("Registry Already Exists")
+		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
+		return dr, err
+	}
+	registry.CreatedOn = time.Now().String()
+	insertOneResult, err := insertOne(r.ctx, r.client, r.database, r.collection, registry)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	log.Info().Msg("Result of InsertOne")
+	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
+	err = CreateRegPublish(r.pubTopic, registry)
 	if err != nil {
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
-	var devRegistry cloudiot.DeviceRegistry
+	dr = model.Response{StatusCode: 200, Message: "Success"}
+	return dr, err
+}
+func UpdateRegPublish(topicId string, dev model.RegistryUpdate) error {
 
-	if registry.Certificate != "" {
-		devRegistry = cloudiot.DeviceRegistry{
-			Id: registry.RegistryID,
-			EventNotificationConfigs: []*cloudiot.EventNotificationConfig{
-				{
-					SubfolderMatches: "",
-					PubsubTopicName:  registry.TopicName,
-				},
-			},
-			Credentials: []*cloudiot.RegistryCredential{
-				{
-					PublicKeyCertificate: &cloudiot.PublicKeyCertificate{
-						Format:      "X509_CERTIFICATE_PEM",
-						Certificate: registry.Certificate,
-					},
-				},
-			},
-		}
+	PubStruct := model.PublishRegistryUpdate{Operation: "UPDATE", Entity: "Registry", Data: dev}
 
-	} else {
-		devRegistry = cloudiot.DeviceRegistry{
-			Id: registry.RegistryID,
-			EventNotificationConfigs: []*cloudiot.EventNotificationConfig{
-				{
-					SubfolderMatches: "",
-					PubsubTopicName:  registry.TopicName,
-				},
-			},
-		}
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
+func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+	}
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	var dr model.Response
+	if queryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		return dr, err
+	}
+	filter = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+	}
+	if registry.MqttConfig.MqttEnabledState != "" && strings.Contains(registry.UpdateMask, "mqtt_config") {
+		queryResult.MqttConfig.MqttEnabledState = registry.MqttConfig.MqttEnabledState
+	}
+	if registry.HttpConfig.HttpEnabledState != "" && strings.Contains(registry.UpdateMask, "http_config") {
+		queryResult.HttpConfig.HttpEnabledState = registry.HttpConfig.HttpEnabledState
+	}
+	if len(registry.EventNotificationConfigs) > 0 && strings.Contains(registry.UpdateMask, "event_notification_configs") {
+		queryResult.EventNotificationConfigs = registry.EventNotificationConfigs
+	}
+	if registry.StateNotificationConfig != nil && strings.Contains(registry.UpdateMask, "state_notification_config") {
+		queryResult.StateNotificationConfig = registry.StateNotificationConfig
 	}
 
-	parent := fmt.Sprintf("projects/%s/locations/%s", registry.ProjectID, registry.Region)
-	response, err := client.Projects.Locations.Registries.Create(parent, &devRegistry).Do()
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "mqttconfig", Value: queryResult.MqttConfig},
+		}}, {Key: "$set", Value: bson.D{
+			{Key: "httpconfig", Value: queryResult.HttpConfig},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "eventnotificationconfigs", Value: queryResult.EventNotificationConfigs},
+		}}, {Key: "$set", Value: bson.D{
+			{Key: "statenotificationconfig", Value: queryResult.StateNotificationConfig},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
 	if err != nil {
+		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
 
-	log.Info().Msg("Created registry:")
-	log.Info().Msg(response.Id)
-	log.Info().Msg(response.HttpConfig.HttpEnabledState)
-	log.Info().Msg(response.MqttConfig.MqttEnabledState)
-	log.Info().Msg(response.Name)
+	// print count of documents that affected
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	err = UpdateRegPublish(r.pubTopic, registry)
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	dr = model.Response{StatusCode: 200, Message: "Success"}
+	return dr, err
+}
+func DeleteRegPublish(topicId string, dev model.RegistryDelete) error {
 
+	PubStruct := model.PublishRegistryDelete{Operation: "DELETE", Entity: "Registry", Data: dev}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
+func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	result, err := deleteOne(r.ctx, r.client, r.database, r.collection, filter)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("No.of rows affected by DeleteOne()")
+	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+	err = DeleteRegPublish(r.pubTopic, registry)
+	if err != nil {
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
-
-// getClient returns a client based on the environment variable GOOGLE_APPLICATION_CREDENTIALS
-func getClient() (*cloudiot.Service, error) {
-	// Authorize the client using Application Default Credentials.
-	// See https://g.co/dv/identity/protocols/application-default-credentials
-	ctx := context.Background()
-	httpClient, err := google.DefaultClient(ctx, cloudiot.CloudPlatformScope)
-	if err != nil {
-		return nil, err
-	}
-	client, err := cloudiot.NewService(ctx, option.WithHTTPClient(httpClient))
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
-}
-
-func (*registryIotService) UpdateRegistry(registry model.Registry) (model.Response, error) {
-	client, err := getClient()
-	if err != nil {
-		dr := model.Response{Message: err.Error()}
-		return dr, err
+func (r *registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}
 
-	parent := fmt.Sprintf("projects/%s/locations/%s/registries/%s", registry.ProjectID, registry.Region, registry.RegistryID)
-	devRegistry, err := client.Projects.Locations.Registries.Get(parent).Do()
+	// Returns result of deletion and error
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	if err != nil {
-		dr := model.Response{Message: err.Error()}
-		return dr, err
-	}
-	devRegistry.EventNotificationConfigs = []*cloudiot.EventNotificationConfig{
-		{
-			PubsubTopicName: registry.TopicName,
-		},
-	}
-	devRegistry.Id = ""
-	response, err := client.Projects.Locations.Registries.Patch(parent, devRegistry).UpdateMask("event_notification_configs").Do()
-	if err != nil {
+		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
-
-	log.Info().Msg("Updated registry:")
-	log.Info().Msg(response.Id)
-	log.Info().Msg(response.HttpConfig.HttpEnabledState)
-	log.Info().Msg(response.MqttConfig.MqttEnabledState)
-	log.Info().Msg(response.Name)
-
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	if queryResult.Id == "" {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		return dr, err
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Registry " + queryResult.Id)
+	dr := model.Response{StatusCode: 200, Message: queryResult}
 	return dr, err
 }
-func (*registryIotService) DeleteRegistry(registry model.Registry) (model.Response, error) {
-	client, err := getClient()
+func (r *registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "parent", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
+	}
+
+	// Returns result of deletion and error
+	//var queryResult model.RegistryCreate
+	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
+		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
+	var results []model.RegistryCreate
 
-	parent := fmt.Sprintf("projects/%s/locations/%s/registries/%s", registry.ProjectID, registry.Region, registry.RegistryID)
-	_, err = client.Projects.Locations.Registries.Get(parent).Do()
-	if err != nil {
+	// to get bson object  from cursor,
+	// returns error if any.
+	if err := cursor.All(r.ctx, &results); err != nil {
+
+		// handle the error
+		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
-
-	_, err = client.Projects.Locations.Registries.Delete(parent).Do()
-	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+	if results == nil {
+		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
 		return dr, err
 	}
-
-	log.Info().Msg("Deleted registry:")
-
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	type result struct {
+		DeviceRegistries []model.RegistryCreate `json:"deviceRegistries" validate:"required"`
+	}
+	// print the count of affected documents
+	log.Info().Msg("Got Details For Registries ")
+	dr := model.Response{StatusCode: 200, Message: result{DeviceRegistries: results}}
 	return dr, err
 }

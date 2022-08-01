@@ -1,10 +1,11 @@
 {
     "debug" : "true",
     "ENV_AUTH_SERVER": ":8091",
-    "ServiceType": "gcp",
-    "MongoCS": "mongodb://localhost:27017",
+    "ServiceType": "kore",
+    "MongoCS": "mongodb+srv://shaiz:12345@cluster0.ugy2c.mongodb.net/?retryWrites=true&w=majority",
     "MongoDB": "test",
     "RegistryCollection": "Reg",
-    "DeviceCollection": "Dev"
+    "DeviceCollection": "Dev",
+    "PubTopic":"test"
 
 }
