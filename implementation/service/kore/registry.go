@@ -12,7 +12,7 @@ import (
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
 func (r *registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
-	ping(r.ctx, r.client)
+	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
@@ -39,7 +39,7 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 }
 
 func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
-	ping(r.ctx, r.client)
+	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
 	}
@@ -89,7 +89,7 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	return dr, err
 }
 func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
-	ping(r.ctx, r.client)
+	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}
@@ -108,7 +108,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	return dr, err
 }
 func (r *registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
-	ping(r.ctx, r.client)
+	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}
@@ -131,7 +131,7 @@ func (r *registryIotService) GetRegistry(_ context.Context, registry model.Regis
 	return dr, err
 }
 func (r *registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
-	ping(r.ctx, r.client)
+	Ping(r.ctx, r.client)
 	var filter interface{} = bson.D{
 		{Key: "parent", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
 	}

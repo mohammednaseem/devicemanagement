@@ -10,12 +10,10 @@ import (
 
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	iotDelivery "github.com/gcp-iot/implementation/delivery/http"
 	gcpService "github.com/gcp-iot/implementation/service/gcp"
 	koreService "github.com/gcp-iot/implementation/service/kore"
+	iotDelivery "github.com/gcp-iot/implementation/start/http"
 	iotUsecase "github.com/gcp-iot/implementation/usecase"
 	"github.com/gcp-iot/model"
 
@@ -29,48 +27,6 @@ import (
 	lecho "github.com/ziflex/lecho"
 )
 
-// This is a user defined method to close resources.
-// This method closes mongoDB connection and cancel context.
-func closeMongo(ctx context.Context, client *mongo.Client, cancel context.CancelFunc) {
-	log.Info().Msg("Closing Mongo Conection")
-	defer cancel()
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-}
-
-// This is a user defined method that returns
-// a mongo.Client, context.Context,
-// context.CancelFunc and error.
-// mongo.Client will be used for further database
-// operation. context.Context will be used set
-// deadlines for process. context.CancelFunc will
-// be used to cancel context and resource
-// associated with it.
-func connect(uri string) (context.Context, *mongo.Client, error) {
-	ctx := context.Background()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-	return ctx, client, err
-}
-
-// This is a user defined method that accepts
-// mongo.Client and context.Context
-// This method used to ping the mongoDB, return error if any.
-func ping(ctx context.Context, client *mongo.Client) error {
-
-	// mongo.Client has Ping to ping mongoDB, deadline of
-	// the Ping method will be determined by cxt
-	// Ping method return error if any occurred, then
-	// the error can be handled.
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Error().Msg("Connection Unsuccessful")
-		return err
-	}
-	log.Info().Msg("connected successfully")
-	return nil
-}
 func init() {
 	path, err := os.Getwd()
 	if err != nil {
@@ -174,13 +130,18 @@ func main() {
 			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
 
 		}
+		PubTopic := viper.GetString("PubTopic")
+		if PubTopic == "" {
+			log.Error().Msg("Configuration Error: PubTopic not available")
+
+		}
 		var err error
-		ctx, client, err = connect(MongoCS)
+		ctx, client, err = koreService.Connect(MongoCS)
 		if err != nil {
 			panic(err)
 		}
-		ping(ctx, client)
-		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB)
+		koreService.Ping(ctx, client)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic)
 		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB)
 
 	} else {
@@ -190,7 +151,7 @@ func main() {
 	_registryUsecase := iotUsecase.NewIoTUsecase(_registryService, timeoutContext)
 	defer func() {
 		if serviceType == "kore" {
-			closeMongo(ctx, client, cancel)
+			koreService.CloseMongo(ctx, client, cancel)
 		}
 	}()
 	iotDelivery.NewIoTtHandler(e, _registryUsecase, _deviceUsecase)

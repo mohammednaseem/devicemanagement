@@ -68,6 +68,8 @@ func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent8")
+	req.Registry = c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
@@ -91,6 +93,8 @@ func (r *registrytHandler) GetDevice(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent8")
+	req.Registry = c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
@@ -114,6 +118,8 @@ func (r *registrytHandler) GetDevices(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Registry = c.Param("parent6")
+	req.Id = "ALL"
 	if err := c.Validate(req); err != nil {
 		return err
 	}

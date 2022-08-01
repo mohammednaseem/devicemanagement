@@ -3,8 +3,10 @@ package kore
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
@@ -13,9 +15,45 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type Publish struct {
+	Operation    string `json:"operation" validate:"required"`
+	Id           string `json:"id" validate:"required"`
+	Certificate1 string `json:"certificate1" validate:"required"`
+	Certificate2 string `json:"certificate2" validate:"required"`
+	Certificate3 string `json:"certificate3" validate:"required"`
+	Project      string `json:"project" validate:"required"`
+	Region       string `json:"region" validate:"required"`
+	Created_on   string `json:"created_on" validate:"required"`
+}
+
+func CreateDevicePublish(topicId string, dev model.DeviceCreate) error {
+
+	PubStruct := Publish{Operation: "CREATE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: time.Now().String()}
+	switch certificates := len(dev.Credentials); certificates {
+	case 1:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+	case 2:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
+	case 3:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
+		PubStruct.Certificate3 = dev.Credentials[2].PublicKey.Key
+	default:
+		log.Info().Msg("Invalid No of certificates")
+	}
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+	return err
+}
+
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
 func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreate) (model.Response, error) {
-	ping(d.ctx, d.client)
+	Ping(d.ctx, d.client)
 	var rfilter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Registry}}},
 		{Key: "region", Value: bson.D{{Key: "$eq", Value: dev.Region}}},
@@ -57,13 +95,41 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	log.Info().Msg("Result of InsertOne")
 	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
 
+	CreateDevicePublish(d.pubTopic, dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Device Create Publish Failed")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr = model.Response{StatusCode: 200, Message: "Success"}
-
 	return dr, err
 }
+func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
 
+	PubStruct := Publish{Operation: "UPDATE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: ""}
+	switch certificates := len(dev.Credentials); certificates {
+	case 1:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+	case 2:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
+	case 3:
+		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
+		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
+		PubStruct.Certificate3 = dev.Credentials[2].PublicKey.Key
+	default:
+		log.Info().Msg("Invalid No of certificates")
+	}
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+	return err
+}
 func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdate) (model.Response, error) {
-	ping(d.ctx, d.client)
+	Ping(d.ctx, d.client)
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
@@ -102,11 +168,30 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	// print count of documents that affected
 	log.Info().Msg("update single document")
 	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	UpdateDevicePublish(d.pubTopic, dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Device Update Publish Failed")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
+func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
+
+	PubStruct := Publish{Operation: "DELETE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: ""}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+	return err
+}
+
 func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
-	ping(d.ctx, d.client)
+	Ping(d.ctx, d.client)
 	var filter interface{} = bson.D{
 		{Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
 	}
@@ -121,11 +206,17 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+	DeleteDevicePublish(d.pubTopic, dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Device Create Publish Failed")
+		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		return dr, err
+	}
 	dr := model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
 func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
-	ping(d.ctx, d.client)
+	Ping(d.ctx, d.client)
 	var filter interface{} = bson.D{
 		{Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
 	}
@@ -148,7 +239,7 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 	return dr, err
 }
 func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
-	ping(d.ctx, d.client)
+	Ping(d.ctx, d.client)
 	var filter interface{} = bson.D{
 		{Key: "parent", Value: bson.D{{Key: "$eq", Value: dev.Parent}}},
 	}

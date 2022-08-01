@@ -77,6 +77,7 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
@@ -100,6 +101,7 @@ func (r *registrytHandler) GetRegistry(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent6")
 	if err := c.Validate(req); err != nil {
 		return err
 	}
@@ -123,6 +125,7 @@ func (r *registrytHandler) GetRegistries(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4")
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = "ALL"
 	if err := c.Validate(req); err != nil {
 		return err
 	}

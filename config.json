@@ -5,6 +5,7 @@
     "MongoCS": "mongodb+srv://shaiz:12345@cluster0.ugy2c.mongodb.net/?retryWrites=true&w=majority",
     "MongoDB": "test",
     "RegistryCollection": "Reg",
-    "DeviceCollection": "Dev"
+    "DeviceCollection": "Dev",
+    "PubTopic":"test"
 
 }
