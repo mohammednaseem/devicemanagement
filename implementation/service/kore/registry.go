@@ -3,6 +3,7 @@ package kore
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
@@ -24,6 +25,7 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
 	}
+	registry.CreatedOn = time.Now().String()
 	insertOneResult, err := insertOne(r.ctx, r.client, r.database, r.collection, registry)
 	if err != nil {
 		log.Error().Err(err).Msg("")

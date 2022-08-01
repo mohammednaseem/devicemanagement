@@ -15,6 +15,7 @@ type RegistryCreate struct {
 	MqttConfig               cloudiot.MqttConfig                 `json:"mqttConfig"  validate:""`
 	HttpConfig               cloudiot.HttpConfig                 `json:"httpConfig"  validate:""`
 	LogLevel                 string                              `json:"logLevel"  validate:""`
+	CreatedOn                string                              `json:"createdOn"  validate:""`
 	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
 }
 type RegistryUpdate struct {
@@ -29,6 +30,7 @@ type RegistryUpdate struct {
 	MqttConfig               cloudiot.MqttConfig                 `json:"mqttConfig"  validate:""`
 	HttpConfig               cloudiot.HttpConfig                 `json:"httpConfig"  validate:""`
 	LogLevel                 string                              `json:"logLevel"  validate:""`
+	CreatedOn                string                              `json:"createdOn"  validate:""`
 	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
 }
 type RegistryDelete struct {
@@ -49,6 +51,7 @@ type DeviceCreate struct {
 	LogLevel    string                       `json:"logLevel"  validate:""`
 	Blocked     bool                         `json:"blocked"  validate:""`
 	Metadata    map[string]string            `json:"metadata"  validate:""`
+	CreatedOn   string                       `json:"createdOn"  validate:""`
 }
 type DeviceUpdate struct {
 	UpdateMask  string                       `json:"updatemask" validate:"required"`
@@ -62,6 +65,7 @@ type DeviceUpdate struct {
 	LogLevel    string                       `json:"logLevel"  validate:""`
 	Blocked     bool                         `json:"blocked"  validate:""`
 	Metadata    map[string]string            `json:"metadata"  validate:""`
+	CreatedOn   string                       `json:"createdOn"  validate:""`
 }
 type DeviceDelete struct {
 	Id       string `json:"id" validate:"required"`

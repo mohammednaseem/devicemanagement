@@ -15,39 +15,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Publish struct {
-	Operation    string `json:"operation" validate:"required"`
-	Id           string `json:"id" validate:"required"`
-	Certificate1 string `json:"certificate1" validate:"required"`
-	Certificate2 string `json:"certificate2" validate:"required"`
-	Certificate3 string `json:"certificate3" validate:"required"`
-	Project      string `json:"project" validate:"required"`
-	Region       string `json:"region" validate:"required"`
-	Created_on   string `json:"created_on" validate:"required"`
-}
-
 func CreateDevicePublish(topicId string, dev model.DeviceCreate) error {
 
-	PubStruct := Publish{Operation: "CREATE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: time.Now().String()}
-	switch certificates := len(dev.Credentials); certificates {
-	case 1:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-	case 2:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
-	case 3:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
-		PubStruct.Certificate3 = dev.Credentials[2].PublicKey.Key
-	default:
-		log.Info().Msg("Invalid No of certificates")
-	}
+	PubStruct := model.PublishCreate{Operation: "CREATE", Data: dev}
+
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		return err
 	}
 	err = publish(dev.Project, topicId, msg)
+
 	return err
 }
 
@@ -86,6 +64,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	}
 	randNum := nBig.Int64()
 	dev.NumId = fmt.Sprintf("%d", randNum)
+	dev.CreatedOn = time.Now().String()
 	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.dcollection, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -95,9 +74,8 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	log.Info().Msg("Result of InsertOne")
 	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
 
-	CreateDevicePublish(d.pubTopic, dev)
+	err = CreateDevicePublish(d.pubTopic, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Device Create Publish Failed")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
@@ -106,20 +84,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 }
 func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
 
-	PubStruct := Publish{Operation: "UPDATE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: ""}
-	switch certificates := len(dev.Credentials); certificates {
-	case 1:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-	case 2:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
-	case 3:
-		PubStruct.Certificate1 = dev.Credentials[0].PublicKey.Key
-		PubStruct.Certificate2 = dev.Credentials[1].PublicKey.Key
-		PubStruct.Certificate3 = dev.Credentials[2].PublicKey.Key
-	default:
-		log.Info().Msg("Invalid No of certificates")
-	}
+	PubStruct := model.PublishUpdate{Operation: "UPDATE", Data: dev}
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -168,9 +133,8 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	// print count of documents that affected
 	log.Info().Msg("update single document")
 	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
-	UpdateDevicePublish(d.pubTopic, dev)
+	err = UpdateDevicePublish(d.pubTopic, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Device Update Publish Failed")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
@@ -179,7 +143,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 }
 func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
 
-	PubStruct := Publish{Operation: "DELETE", Id: dev.Id, Certificate1: "", Certificate2: "", Certificate3: "", Project: dev.Project, Region: dev.Region, Created_on: ""}
+	PubStruct := model.PublishDelete{Operation: "DELETE", Data: dev}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
@@ -187,6 +151,7 @@ func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
 		return err
 	}
 	err = publish(dev.Project, topicId, msg)
+
 	return err
 }
 
@@ -206,9 +171,8 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
-	DeleteDevicePublish(d.pubTopic, dev)
+	err = DeleteDevicePublish(d.pubTopic, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Device Create Publish Failed")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
