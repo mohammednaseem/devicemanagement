@@ -74,7 +74,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	}
 	log.Info().Msg("Result of InsertOne")
 	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
-	if d.Publish == true {
+	if d.Publish {
 		err = CreateDevicePublish(d.pubTopic, dev)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -143,7 +143,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	// print count of documents that affected
 	log.Info().Msg("update single document")
 	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
-	if d.Publish == true {
+	if d.Publish {
 		err = UpdateDevicePublish(d.pubTopic, dev)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -183,7 +183,7 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
-	if d.Publish == true {
+	if d.Publish {
 		err = DeleteDevicePublish(d.pubTopic, dev)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}

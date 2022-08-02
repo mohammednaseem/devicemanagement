@@ -50,7 +50,7 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 	}
 	log.Info().Msg("Result of InsertOne")
 	log.Info().Msg((insertOneResult.InsertedID).(primitive.ObjectID).String())
-	if r.Publish == true {
+	if r.Publish {
 		err = CreateRegPublish(r.pubTopic, registry)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -127,7 +127,7 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	// print count of documents that affected
 	log.Info().Msg("update single document")
 	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
-	if r.Publish == true {
+	if r.Publish {
 		err = UpdateRegPublish(r.pubTopic, registry)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}
@@ -166,7 +166,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	// print the count of affected documents
 	log.Info().Msg("No.of rows affected by DeleteOne()")
 	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
-	if r.Publish == true {
+	if r.Publish {
 		err = DeleteRegPublish(r.pubTopic, registry)
 		if err != nil {
 			dr := model.Response{StatusCode: 500, Message: err.Error()}
