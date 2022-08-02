@@ -130,8 +130,9 @@ func main() {
 			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
 
 		}
+		Publish := viper.GetBool("ENV_PUBLISH")
 		PubTopic := viper.GetString("ENV_PUB_TOPIC")
-		if PubTopic == "" {
+		if PubTopic == "" && Publish == true {
 			log.Error().Msg("Configuration Error: PubTopic not available")
 
 		}
@@ -141,8 +142,8 @@ func main() {
 			panic(err)
 		}
 		koreService.Ping(ctx, client)
-		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic)
-		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic, Publish)
+		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic, Publish)
 
 	} else {
 		log.Fatal().Msg("Configuration Error: Service Type Not Found")
