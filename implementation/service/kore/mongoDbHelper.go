@@ -19,7 +19,7 @@ func Ping(ctx context.Context, client *mongo.Client) error {
 	// Ping method return error if any occurred, then
 	// the error can be handled.
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
-		log.Error().Msg("Connection Unsuccessful")
+		log.Error().Err(err).Msg("Connection Unsuccessful")
 		return err
 	}
 	log.Info().Msg("connected successfully")
