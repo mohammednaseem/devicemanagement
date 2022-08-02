@@ -1,5 +1,5 @@
 {
-    "ENV_DEBUG" : "true",
+    "debug" : "true",
     "ENV_AUTH_SERVER": ":8091",
     "ENV_SERVICE_TYPE": "kore",
     "ENV_MONGO_CS": "mongodb+srv://shaiz:12345@cluster0.ugy2c.mongodb.net/?retryWrites=true&w=majority",
