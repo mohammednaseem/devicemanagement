@@ -18,7 +18,7 @@ import (
 
 func CreateDevicePublish(topicId string, dev model.DeviceCreate) error {
 
-	PubStruct := model.PublishDeviceCreate{Operation: "CREATE", Entity: "Device", Data: dev}
+	PubStruct := model.PublishDeviceCreate{Operation: "POST", Entity: "Device", Data: dev, Path: "device/" + dev.Parent}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
@@ -86,7 +86,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 }
 func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
 
-	PubStruct := model.PublishDeviceUpdate{Operation: "UPDATE", Entity: "Device", Data: dev}
+	PubStruct := model.PublishDeviceUpdate{Operation: "PATCH", Entity: "Device", Data: dev, Path: "device/" + dev.Parent + "?updateMask=" + dev.UpdateMask}
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
 		log.Error().Err(err).Msg("")
@@ -155,7 +155,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 }
 func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
 
-	PubStruct := model.PublishDeviceDelete{Operation: "DELETE", Entity: "Device", Data: dev}
+	PubStruct := model.PublishDeviceDelete{Operation: "DELETE", Entity: "Device", Data: dev, Path: "device/" + dev.Parent}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {

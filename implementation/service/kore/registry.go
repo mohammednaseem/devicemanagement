@@ -15,7 +15,7 @@ import (
 
 func CreateRegPublish(topicId string, dev model.RegistryCreate) error {
 
-	PubStruct := model.PublishRegistryCreate{Operation: "CREATE", Entity: "Registry", Data: dev}
+	PubStruct := model.PublishRegistryCreate{Operation: "POST", Entity: "Registry", Data: dev, Path: "registry/" + dev.Parent}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 }
 func UpdateRegPublish(topicId string, dev model.RegistryUpdate) error {
 
-	PubStruct := model.PublishRegistryUpdate{Operation: "UPDATE", Entity: "Registry", Data: dev}
+	PubStruct := model.PublishRegistryUpdate{Operation: "PATCH", Entity: "Registry", Data: dev, Path: "registry/" + dev.Parent + "?updateMask=" + dev.UpdateMask}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
@@ -139,7 +139,7 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 }
 func DeleteRegPublish(topicId string, dev model.RegistryDelete) error {
 
-	PubStruct := model.PublishRegistryDelete{Operation: "DELETE", Entity: "Registry", Data: dev}
+	PubStruct := model.PublishRegistryDelete{Operation: "DELETE", Entity: "Registry", Data: dev, Path: "registry/" + dev.Parent}
 
 	msg, err := json.Marshal(PubStruct)
 	if err != nil {
