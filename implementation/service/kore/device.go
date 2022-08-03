@@ -69,7 +69,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 			}
 			if err != nil {
 				log.Error().Msg("Certificate Verification Failed")
-				dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failedr"}
+				dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failed"}
 				return dr, err
 			}
 
