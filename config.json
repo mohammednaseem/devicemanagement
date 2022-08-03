@@ -7,6 +7,6 @@
     "ENV_REGISTRY_COLLECTION": "Reg",
     "ENV_DEVICE_COLLECTION": "Dev",
     "ENV_PUBLISH":true,
-    "ENV_PUB_TOPIC":"local"
+    "ENV_PUB_TOPIC":"test"
 
 }
