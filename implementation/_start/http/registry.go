@@ -113,7 +113,7 @@ func (r *registrytHandler) GetRegistry(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
-func (r *registrytHandler) GetRegistries(c echo.Context) error {
+func (r *registrytHandler) GetRegistriesRegion(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	req := new(model.RegistryDelete)
@@ -125,6 +125,29 @@ func (r *registrytHandler) GetRegistries(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/registries"
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
+	req.Id = "ALL"
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+	mResponse, err := r.rUsecase.GetRegistriesRegion(ctx, *req)
+
+	if mResponse.StatusCode != 200 {
+		log.Error().Err(err).Msg("")
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
+	}
+	return c.JSON(http.StatusOK, mResponse.Message)
+}
+func (r *registrytHandler) GetRegistries(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(model.RegistryDelete)
+	if err := c.Bind(req); err != nil {
+		log.Error().Err(err).Msg("")
+		r := model.Response{Message: "Data not good"}
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/registries"
+	req.Project = c.Param("parent2")
 	req.Id = "ALL"
 	if err := c.Validate(req); err != nil {
 		return err

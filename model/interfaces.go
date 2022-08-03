@@ -8,6 +8,7 @@ type IRegistryrUsecase interface {
 	UpdateRegistry(ctx context.Context, registry RegistryUpdate) (Response, error)
 	DeleteRegistry(ctx context.Context, registry RegistryDelete) (Response, error)
 	GetRegistry(ctx context.Context, registry RegistryDelete) (Response, error)
+	GetRegistriesRegion(ctx context.Context, registry RegistryDelete) (Response, error)
 	GetRegistries(ctx context.Context, registry RegistryDelete) (Response, error)
 }
 
@@ -17,6 +18,7 @@ type IRegistryService interface {
 	UpdateRegistry(ctx context.Context, registry RegistryUpdate) (Response, error)
 	DeleteRegistry(ctx context.Context, registry RegistryDelete) (Response, error)
 	GetRegistry(ctx context.Context, registry RegistryDelete) (Response, error)
+	GetRegistriesRegion(ctx context.Context, registry RegistryDelete) (Response, error)
 	GetRegistries(ctx context.Context, registry RegistryDelete) (Response, error)
 }
 

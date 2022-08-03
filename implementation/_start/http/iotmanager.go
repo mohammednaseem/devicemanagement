@@ -15,7 +15,8 @@ func NewIoTtHandler(e *echo.Echo, registryUsecase model.IRegistryrUsecase, devic
 		rUsecase: registryUsecase,
 		dUsecase: deviceUsecase,
 	}
-	e.GET("/registry/:parent1/:parent2/:parent3/:parent4/registries", RegistrytHandler.GetRegistries)
+	e.GET("/registry/:parent1/:parent2/:parent3/:parent4/registries", RegistrytHandler.GetRegistriesRegion)
+	e.GET("/registry/:parent1/:parent2/registries", RegistrytHandler.GetRegistries)
 	e.POST("/registry/:parent1/:parent2/:parent3/:parent4/registries", RegistrytHandler.NewRegistry)
 	e.PATCH("/registry/:parent1/:parent2/:parent3/:parent4/:parent5/:parent6", RegistrytHandler.UpdateRegistry)
 	e.DELETE("/registry/:parent1/:parent2/:parent3/:parent4/:parent5/:parent6", RegistrytHandler.DeleteRegistry)

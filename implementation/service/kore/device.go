@@ -11,6 +11,7 @@ import (
 
 	"github.com/gcp-iot/model"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/exp/slices"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -46,6 +47,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 		dr = model.Response{StatusCode: 404, Message: "Registry Not Found"}
 		return dr, err
 	}
+
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
@@ -56,6 +58,23 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 		log.Error().Msg("Device Already Exists")
 		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
 		return dr, err
+	}
+	if len(rqueryResult.Credentials) > 0 {
+		for _, cert := range dev.Credentials {
+			for _, ca := range rqueryResult.Credentials {
+				err = verifyCert([]byte(cert.PublicKey.Key), []byte(ca.PublicKeyCertificate.Certificate))
+				if err == nil {
+					break
+				}
+			}
+			if err != nil {
+				log.Error().Msg("Certificate Verification Failed")
+				dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failedr"}
+				return dr, err
+			}
+
+		}
+
 	}
 	nBig, err := rand.Int(rand.Reader, big.NewInt(999999999999999999))
 	if err != nil {
@@ -97,16 +116,57 @@ func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
 }
 func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdate) (model.Response, error) {
 	Ping(d.ctx, d.client)
+
+	var rfilter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Registry}}},
+		{Key: "region", Value: bson.D{{Key: "$eq", Value: dev.Region}}},
+		{Key: "project", Value: bson.D{{Key: "$eq", Value: dev.Project}}},
+	}
+	var rqueryResult model.RegistryCreate
+	var dr model.Response
+	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
+	if rqueryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.Response{StatusCode: 404, Message: "Registry Not Found"}
+		return dr, err
+	}
+
 	var filter interface{} = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
 	}
 	var queryResult model.DeviceCreate
-	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
-	var dr model.Response
+	err = queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
-		log.Error().Msg("No Registry Found")
+		log.Error().Msg("No Device Found")
 		dr = model.Response{StatusCode: 404, Message: "Not Found"}
 		return dr, err
+	}
+	if len(rqueryResult.Credentials) > 0 {
+		var noCerts []string
+		for _, cert := range dev.Credentials {
+			for _, queryCert := range queryResult.Credentials {
+				if cert.PublicKey.Key == queryCert.PublicKey.Key {
+					noCerts = append(noCerts, cert.PublicKey.Key)
+				}
+			}
+		}
+		for _, cert := range dev.Credentials {
+			if !slices.Contains(noCerts, cert.PublicKey.Format) {
+				for _, ca := range rqueryResult.Credentials {
+					err = verifyCert([]byte(cert.PublicKey.Key), []byte(ca.PublicKeyCertificate.Certificate))
+					if err == nil {
+						break
+					}
+				}
+				if err != nil {
+					log.Error().Msg("Certificate Verification Failed")
+					dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failedr"}
+					return dr, err
+				}
+			}
+
+		}
+
 	}
 	filter = bson.D{
 		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},

@@ -132,7 +132,7 @@ func main() {
 		}
 		Publish := viper.GetBool("ENV_PUBLISH")
 		PubTopic := viper.GetString("ENV_PUB_TOPIC")
-		if PubTopic == "" && Publish == true {
+		if PubTopic == "" && Publish {
 			log.Error().Msg("Configuration Error: PubTopic not available")
 
 		}
