@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: device-manager
+  name: devicemgr
+spec:
+  ports:
+  - port: 8091
+    protocol: TCP
+    targetPort: 8091
+  selector:
+    app: device-manager
+  type: LoadBalancer

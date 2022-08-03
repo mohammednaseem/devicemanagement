@@ -149,6 +149,7 @@ func (r *registrytHandler) GetRegistries(c echo.Context) error {
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/registries"
 	req.Project = c.Param("parent2")
 	req.Id = "ALL"
+	req.Region = "ALL"
 	if err := c.Validate(req); err != nil {
 		return err
 	}

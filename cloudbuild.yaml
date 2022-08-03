@@ -1,11 +1,11 @@
 steps:
 # Step 1
-- name: 'gcr.io/cloud-builders/docker'
-  entrypoint: 'bash'
-  args: [
-    '-c', 
-    'docker pull gcr.io/famous-palisade-356103/device-mngr:latest || exit 0'
-  ]
+#- name: 'gcr.io/cloud-builders/docker'
+  #entrypoint: 'bash'
+  #args: [
+    #'-c', 
+   # 'docker pull gcr.io/famous-palisade-356103/device-mngr:latest || exit 0'
+  #]
 # Step 2
 - name: gcr.io/cloud-builders/docker
   args: [
@@ -26,7 +26,7 @@ steps:
 # Step 3
 - name: 'gcr.io/cloud-builders/kubectl'
 #args: ['apply', '-f', 'k8s/']
-  args: ['apply', '-f', 'deployment.yaml']
+  args: ['apply', '-f', '*.yaml']
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=asia-east1-a'
   - 'CLOUDSDK_CONTAINER_CLUSTER=device-manager'
