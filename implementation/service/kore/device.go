@@ -328,15 +328,17 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 		return dr, err
 	}
 	type resultNode struct {
-		Id    string `json:"id" validate:"required"`
-		NumID string `json:"numId" validate:"required"`
+		Id       string `json:"id" validate:"required"`
+		NumID    string `json:"numId" validate:"required"`
+		Blocked  bool   `json:"blocked" validate:"required"`
+		LogLevel string `json:"LogLevel" validate:"required"`
 	}
 	type resultStruct struct {
 		Devices []resultNode `json:"devices" validate:"required"`
 	}
 	var result resultStruct
 	for _, element := range results {
-		node := resultNode{Id: element.Id, NumID: element.NumId}
+		node := resultNode{Id: element.Id, NumID: element.NumId, Blocked: element.Blocked, LogLevel: element.LogLevel}
 		result.Devices = append(result.Devices, node)
 	}
 
