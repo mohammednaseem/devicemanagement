@@ -17,6 +17,7 @@ type RegistryCreate struct {
 	LogLevel                 string                              `json:"logLevel"  validate:""`
 	CreatedOn                string                              `json:"createdOn"  validate:""`
 	Credentials              []*cloudiot.RegistryCredential      `json:"credentials"  validate:""`
+	Decomissioned            bool                                `json:"decomissioned"  validate:""`
 }
 type RegistryUpdate struct {
 	UpdateMask               string                              `json:"updatemask" validate:"required"`
@@ -40,18 +41,19 @@ type RegistryDelete struct {
 	Region  string `json:"region" validate:"required"`
 }
 type DeviceCreate struct {
-	Project     string                       `json:"project" validate:"required"`
-	Parent      string                       `json:"parent" validate:"required"`
-	NumId       string                       `json:"numId" validate:""`
-	Region      string                       `json:"region" validate:"required"`
-	Registry    string                       `json:"registry" validate:"required"`
-	Id          string                       `json:"id" validate:"required"`
-	Name        string                       `json:"name" validate:"required"`
-	Credentials []*cloudiot.DeviceCredential `json:"credentials" validate:"required"`
-	LogLevel    string                       `json:"logLevel"  validate:""`
-	Blocked     bool                         `json:"blocked"  validate:""`
-	Metadata    map[string]string            `json:"metadata"  validate:""`
-	CreatedOn   string                       `json:"createdOn"  validate:""`
+	Project       string                       `json:"project" validate:"required"`
+	Parent        string                       `json:"parent" validate:"required"`
+	NumId         string                       `json:"numId" validate:""`
+	Region        string                       `json:"region" validate:"required"`
+	Registry      string                       `json:"registry" validate:"required"`
+	Id            string                       `json:"id" validate:"required"`
+	Name          string                       `json:"name" validate:"required"`
+	Credentials   []*cloudiot.DeviceCredential `json:"credentials" validate:"required"`
+	LogLevel      string                       `json:"logLevel"  validate:""`
+	Blocked       bool                         `json:"blocked"  validate:""`
+	Metadata      map[string]string            `json:"metadata"  validate:""`
+	CreatedOn     string                       `json:"createdOn"  validate:""`
+	Decomissioned bool                         `json:"decomissioned"  validate:""`
 }
 type DeviceUpdate struct {
 	UpdateMask  string                       `json:"updatemask" validate:"required"`

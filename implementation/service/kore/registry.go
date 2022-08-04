@@ -152,20 +152,34 @@ func DeleteRegPublish(topicId string, dev model.RegistryDelete) error {
 }
 func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	Ping(r.ctx, r.client)
-	var filter interface{} = bson.D{
-		{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}},
+	filter := bson.D{{Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Parent}}}}
+	var dr model.Response
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	if queryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		return dr, err
 	}
 
-	// Returns result of deletion and error
-	result, err := deleteOne(r.ctx, r.client, r.database, r.collection, filter)
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "decomissioned", Value: true},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		dr := model.Response{StatusCode: 500, Message: err.Error()}
 		return dr, err
 	}
-	// print the count of affected documents
-	log.Info().Msg("No.of rows affected by DeleteOne()")
-	log.Info().Msg(fmt.Sprintf("%d", result.DeletedCount))
+
+	// print count of documents that affected
+	log.Info().Msg("Delete single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
 	if r.Publish {
 		err = DeleteRegPublish(r.pubTopic, registry)
 		if err != nil {
@@ -173,7 +187,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 			return dr, err
 		}
 	}
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.Response{StatusCode: 200, Message: "Success"}
 	return dr, err
 }
 func (r *registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
