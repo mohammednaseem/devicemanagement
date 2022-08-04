@@ -331,7 +331,7 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 		Id       string `json:"id" validate:"required"`
 		NumID    string `json:"numId" validate:"required"`
 		Blocked  bool   `json:"blocked" validate:"required"`
-		LogLevel string `json:"LogLevel" validate:"required"`
+		LogLevel string `json:"loglevel" validate:"required"`
 	}
 	type resultStruct struct {
 		Devices []resultNode `json:"devices" validate:"required"`
