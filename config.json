@@ -6,7 +6,7 @@
     "ENV_MONGO_DB": "test",
     "ENV_REGISTRY_COLLECTION": "Reg",
     "ENV_DEVICE_COLLECTION": "Dev",
-    "ENV_PUBLISH":false,
+    "ENV_PUBLISH":true,
     "ENV_PUB_TOPIC":"test"
 
 }
