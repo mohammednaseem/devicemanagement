@@ -13,7 +13,7 @@ func (r *registrytHandler) NewDevice(c echo.Context) error {
 	req := new(model.DeviceCreate)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.Response{Message: "Invalid Json Received"}
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/devices"

@@ -102,7 +102,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.Response{StatusCode: 201, Message: "Success"}
 	return dr, err
 }
 func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
@@ -243,7 +243,7 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
 		log.Error().Msg("No Device Found")
-		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		dr = model.Response{StatusCode: 200, Message: "Device Not Found"}
 		return dr, err
 	}
 
@@ -286,7 +286,7 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.Response{StatusCode: 404, Message: err.Error()}
 		return dr, err
 	}
 	// print the count of affected documents
@@ -309,7 +309,7 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 	cursor, err := query(d.ctx, d.client, d.database, d.dcollection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.Response{StatusCode: 404, Message: err.Error()}
 		return dr, err
 	}
 	var results []model.DeviceCreate

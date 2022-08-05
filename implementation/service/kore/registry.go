@@ -58,7 +58,7 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.Response{StatusCode: 201, Message: "Success"}
 	return dr, err
 }
 func UpdateRegPublish(topicId string, dev model.RegistryUpdate) error {
@@ -161,7 +161,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
-		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		dr = model.Response{StatusCode: 200, Message: "Registry Not Found"}
 		return dr, err
 	}
 
@@ -204,7 +204,7 @@ func (r *registryIotService) GetRegistry(_ context.Context, registry model.Regis
 	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.Response{StatusCode: 404, Message: err.Error()}
 		return dr, err
 	}
 	if queryResult.Id == "" {
@@ -227,7 +227,7 @@ func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry mod
 	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.Response{StatusCode: 404, Message: err.Error()}
 		return dr, err
 	}
 	var results []model.RegistryCreate
@@ -264,7 +264,7 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.Response{StatusCode: 404, Message: err.Error()}
 		return dr, err
 	}
 	var results []model.RegistryCreate
