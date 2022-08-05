@@ -107,6 +107,9 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	if registry.LogLevel != "" && strings.Contains(registry.UpdateMask, "log_level") {
 		queryResult.LogLevel = registry.LogLevel
 	}
+	if registry.Credentials != nil && strings.Contains(registry.UpdateMask, "credentials") {
+		queryResult.Credentials = registry.Credentials
+	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
@@ -122,6 +125,9 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 		}},
 		{Key: "$set", Value: bson.D{
 			{Key: "loglevel", Value: queryResult.LogLevel},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: queryResult.Credentials},
 		}},
 	}
 
