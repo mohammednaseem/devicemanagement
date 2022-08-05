@@ -12,7 +12,7 @@ func verifyCert(deviceCert []byte, caCert []byte) error {
 	block, _ := pem.Decode(deviceCert)
 	if block == nil {
 		log.Error().Msg("Cannot decode Device Cert")
-		return errors.New("Cannot decode Device Cert")
+		return errors.New("cannot decode device cert")
 	}
 
 	leafCert, err := x509.ParseCertificate(block.Bytes)
@@ -24,7 +24,7 @@ func verifyCert(deviceCert []byte, caCert []byte) error {
 	rootPool := x509.NewCertPool()
 	if !rootPool.AppendCertsFromPEM(caCert) {
 		log.Error().Msg("Cannot append root")
-		return errors.New("Cannot append root")
+		return errors.New("cannot append root")
 	}
 
 	_, err = leafCert.Verify(x509.VerifyOptions{
