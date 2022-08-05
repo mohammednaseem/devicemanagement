@@ -597,7 +597,7 @@
 							"var reg2ini=pm.collectionVariables.get(\"reg2ini\");\r",
 							"\r",
 							"reg2ini =JSON.parse(reg2ini.data)\r",
-							"reg2fin =pm.response.json();\r",
+							"reg2fin =pm.response.json().details;\r",
 							"let status=_.isEqual(reg2ini.stateNotificationConfig,reg2fin.stateNotificationConfig)\r",
 							"status =status && _.isEqual(reg2ini.eventNotificationConfigs,reg2fin.eventNotificationConfigs)\r",
 							"status =status && _.isEqual(reg2ini.httpConfig,reg2fin.httpConfig)\r",

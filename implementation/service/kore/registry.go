@@ -39,14 +39,14 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 	var dr model.Response
 	if queryResult.Id != "" {
 		log.Error().Msg("Registry Already Exists")
-		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
+		dr = model.FrameResponse(409, "Registry Already Exists", "")
 		return dr, err
 	}
 	registry.CreatedOn = time.Now().String()
 	insertOneResult, err := insertOne(r.ctx, r.client, r.database, r.collection, registry)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	log.Info().Msg("Result of InsertOne")
@@ -54,11 +54,11 @@ func (r *registryIotService) CreateRegistry(_ context.Context, registry model.Re
 	if r.Publish {
 		err = CreateRegPublish(r.pubTopic, registry)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 201, Message: "Success"}
+	dr = model.FrameResponse(201, "Success", "")
 	return dr, err
 }
 func UpdateRegPublish(topicId string, dev model.RegistryUpdate) error {
@@ -85,7 +85,7 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	var dr model.Response
 	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
-		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		dr = model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	filter = bson.D{
@@ -123,7 +123,7 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -133,11 +133,11 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	if r.Publish {
 		err = UpdateRegPublish(r.pubTopic, registry)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func DeleteRegPublish(topicId string, dev model.RegistryDelete) error {
@@ -161,7 +161,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
-		dr = model.Response{StatusCode: 200, Message: "Registry Not Found"}
+		dr = model.FrameResponse(200, "Success", "")
 		return dr, err
 	}
 
@@ -176,7 +176,7 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -186,11 +186,11 @@ func (r *registryIotService) DeleteRegistry(_ context.Context, registry model.Re
 	if r.Publish {
 		err = DeleteRegPublish(r.pubTopic, registry)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (r *registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
@@ -204,16 +204,16 @@ func (r *registryIotService) GetRegistry(_ context.Context, registry model.Regis
 	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 404, Message: err.Error()}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	if queryResult.Id == "" {
-		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registry " + queryResult.Id)
-	dr := model.Response{StatusCode: 200, Message: queryResult}
+	dr := model.FrameResponse(200, "Success", queryResult)
 	return dr, err
 }
 func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
@@ -227,7 +227,7 @@ func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry mod
 	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 404, Message: err.Error()}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	var results []model.RegistryCreate
@@ -238,11 +238,11 @@ func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry mod
 
 		// handle the error
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	if results == nil {
-		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	type result struct {
@@ -250,7 +250,7 @@ func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry mod
 	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
-	dr := model.Response{StatusCode: 200, Message: result{DeviceRegistries: results}}
+	dr := model.FrameResponse(200, "Success", result{DeviceRegistries: results})
 	return dr, err
 }
 func (r *registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
@@ -264,7 +264,7 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 	cursor, err := query(r.ctx, r.client, r.database, r.collection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 404, Message: err.Error()}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	var results []model.RegistryCreate
@@ -275,11 +275,11 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 
 		// handle the error
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	if results == nil {
-		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 	type result struct {
@@ -287,6 +287,6 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
-	dr := model.Response{StatusCode: 200, Message: result{DeviceRegistries: results}}
+	dr := model.FrameResponse(200, "Success", result{DeviceRegistries: results})
 	return dr, err
 }

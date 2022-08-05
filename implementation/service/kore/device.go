@@ -45,7 +45,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
 	if rqueryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
-		dr = model.Response{StatusCode: 404, Message: "Registry Not Found"}
+		dr = model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 
@@ -58,7 +58,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 
 	if queryResult.Id != "" {
 		log.Error().Msg("Device Already Exists")
-		dr = model.Response{StatusCode: 409, Message: "Already Exists"}
+		dr = model.FrameResponse(409, "Device Already Exists", "")
 		return dr, err
 	}
 	if len(rqueryResult.Credentials) > 0 {
@@ -71,7 +71,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 			}
 			if err != nil {
 				log.Error().Msg("Certificate Verification Failed")
-				dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failed"}
+				dr = model.FrameResponse(400, "Certificate Verification Failed", "")
 				return dr, err
 			}
 
@@ -81,7 +81,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	nBig, err := rand.Int(rand.Reader, big.NewInt(999999999999999999))
 	if err != nil {
 		log.Error().Msg("Random Generator Failed")
-		dr = model.Response{StatusCode: 500, Message: "Internal Server Error"}
+		dr = model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	randNum := nBig.Int64()
@@ -90,7 +90,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	insertOneResult, err := insertOne(d.ctx, d.client, d.database, d.dcollection, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	log.Info().Msg("Result of InsertOne")
@@ -98,11 +98,11 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 	if d.Publish {
 		err = CreateDevicePublish(d.pubTopic, dev)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 201, Message: "Success"}
+	dr = model.FrameResponse(201, "Success", "")
 	return dr, err
 }
 func UpdateDevicePublish(topicId string, dev model.DeviceUpdate) error {
@@ -130,7 +130,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
 	if rqueryResult.Id == "" {
 		log.Error().Msg("No Registry Found")
-		dr = model.Response{StatusCode: 404, Message: "Registry Not Found"}
+		dr = model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
 
@@ -142,7 +142,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	err = queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
 		log.Error().Msg("No Device Found")
-		dr = model.Response{StatusCode: 404, Message: "Not Found"}
+		dr = model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
 	if len(rqueryResult.Credentials) > 0 {
@@ -164,7 +164,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 				}
 				if err != nil {
 					log.Error().Msg("Certificate Verification Failed")
-					dr = model.Response{StatusCode: 400, Message: "Certificate Verification Failedr"}
+					dr = model.FrameResponse(400, "Certificate Verification Failed", "")
 					return dr, err
 				}
 			}
@@ -201,7 +201,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.dcollection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -211,11 +211,11 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 	if d.Publish {
 		err = UpdateDevicePublish(d.pubTopic, dev)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func DeleteDevicePublish(topicId string, dev model.DeviceDelete) error {
@@ -243,7 +243,7 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if queryResult.Id == "" {
 		log.Error().Msg("No Device Found")
-		dr = model.Response{StatusCode: 200, Message: "Device Not Found"}
+		dr = model.FrameResponse(200, "Device Deleted", "")
 		return dr, err
 	}
 
@@ -257,7 +257,7 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.dcollection, filter, update)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -267,11 +267,11 @@ func (d *deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelet
 	if d.Publish {
 		err = DeleteDevicePublish(d.pubTopic, dev)
 		if err != nil {
-			dr := model.Response{StatusCode: 500, Message: err.Error()}
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 			return dr, err
 		}
 	}
-	dr = model.Response{StatusCode: 200, Message: "Success"}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
@@ -286,16 +286,16 @@ func (d *deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) 
 	err := queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 404, Message: err.Error()}
+		dr := model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
 	// print the count of affected documents
 	if queryResult.Id == "" {
-		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		dr := model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
 	log.Info().Msg("Got Details For Device" + queryResult.Id)
-	dr := model.Response{StatusCode: 200, Message: queryResult}
+	dr := model.FrameResponse(200, "Success", queryResult)
 	return dr, err
 }
 func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
@@ -309,7 +309,7 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 	cursor, err := query(d.ctx, d.client, d.database, d.dcollection, filter)
 	if err != nil {
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 404, Message: err.Error()}
+		dr := model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
 	var results []model.DeviceCreate
@@ -320,11 +320,11 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 
 		// handle the error
 		log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	if results == nil {
-		dr := model.Response{StatusCode: 404, Message: "Not Result Found"}
+		dr := model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
 	type resultNode struct {
@@ -344,6 +344,6 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Devices ")
-	dr := model.Response{StatusCode: 200, Message: result}
+	dr := model.FrameResponse(200, "Success", result)
 	return dr, err
 }

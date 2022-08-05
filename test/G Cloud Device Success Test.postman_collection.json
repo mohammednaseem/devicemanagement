@@ -810,7 +810,7 @@
 							"var dev2ini=pm.collectionVariables.get(\"dev2ini\");\r",
 							"\r",
 							"dev2ini =JSON.parse(dev2ini.data)\r",
-							"dev2fin =pm.response.json();\r",
+							"dev2fin =pm.response.json().details;\r",
 							"let status=_.isEqual(dev2ini.credentials,dev2fin.credentials)\r",
 							"status =status && _.isEqual(dev2ini.blocked,dev2fin.blocked)\r",
 							"status =status && _.isEqual(dev2ini.metadata,dev2fin.metadata)\r",

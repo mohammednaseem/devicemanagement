@@ -13,7 +13,7 @@ import (
 func (*deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -30,27 +30,27 @@ func (*deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreate)
 	_, err = client.Projects.Locations.Registries.Devices.Create(dev.Parent, &device).Do()
 	if err != nil {
 
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Successfully created a device with  public key")
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 
 func (*deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	device, err := client.Projects.Locations.Registries.Devices.Get(dev.Parent).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	fmt.Print(device)
@@ -63,69 +63,69 @@ func (*deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdate)
 	_, err = client.Projects.Locations.Registries.Devices.Patch(dev.Parent, device).UpdateMask(dev.UpdateMask).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Successfully Updated a device ")
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (*deviceIotService) DeleteDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	_, err = client.Projects.Locations.Registries.Devices.Delete(dev.Parent).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Deleted device: \n")
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (*deviceIotService) GetDevice(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	device, err := client.Projects.Locations.Registries.Devices.Get(dev.Parent).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Got device: \n")
 
-	dr := model.Response{StatusCode: 200, Message: device}
+	dr := model.FrameResponse(200, "Success", device)
 	return dr, err
 }
 func (*deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	device, err := client.Projects.Locations.Registries.Devices.List(dev.Parent).Do()
 	if err != nil {
 		//log.Error().Err(err).Msg("")
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Got device: \n")
 
-	dr := model.Response{StatusCode: 200, Message: device}
+	dr := model.FrameResponse(200, "Success", device)
 	return dr, err
 }

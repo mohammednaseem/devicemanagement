@@ -30,7 +30,7 @@ func getClient() (*cloudiot.Service, error) {
 func (*registryIotService) CreateRegistry(_ context.Context, registry model.RegistryCreate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	var devRegistry cloudiot.DeviceRegistry
@@ -45,7 +45,7 @@ func (*registryIotService) CreateRegistry(_ context.Context, registry model.Regi
 
 	response, err := client.Projects.Locations.Registries.Create(registry.Parent, &devRegistry).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -55,20 +55,20 @@ func (*registryIotService) CreateRegistry(_ context.Context, registry model.Regi
 	log.Info().Msg(response.MqttConfig.MqttEnabledState)
 	log.Info().Msg(response.Name)
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 
 func (*registryIotService) UpdateRegistry(_ context.Context, registry model.RegistryUpdate) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	devRegistry, err := client.Projects.Locations.Registries.Get(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 	devRegistry.EventNotificationConfigs = registry.EventNotificationConfigs
@@ -78,7 +78,7 @@ func (*registryIotService) UpdateRegistry(_ context.Context, registry model.Regi
 	devRegistry.Id = ""
 	response, err := client.Projects.Locations.Registries.Patch(registry.Parent, devRegistry).UpdateMask(registry.UpdateMask).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
@@ -88,84 +88,84 @@ func (*registryIotService) UpdateRegistry(_ context.Context, registry model.Regi
 	log.Info().Msg(response.MqttConfig.MqttEnabledState)
 	log.Info().Msg(response.Name)
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (*registryIotService) DeleteRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	_, err = client.Projects.Locations.Registries.Get(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	_, err = client.Projects.Locations.Registries.Delete(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Deleted registry:")
 
-	dr := model.Response{StatusCode: 200, Message: "Success"}
+	dr := model.FrameResponse(200, "Success", "")
 	return dr, err
 }
 func (*registryIotService) GetRegistry(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	reg, err := client.Projects.Locations.Registries.Get(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Got registry:")
 
-	dr := model.Response{StatusCode: 200, Message: reg}
+	dr := model.FrameResponse(200, "Success", reg)
 	return dr, err
 }
 func (*registryIotService) GetRegistriesRegion(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	reg, err := client.Projects.Locations.Registries.List(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Got registry:")
 
-	dr := model.Response{StatusCode: 200, Message: reg}
+	dr := model.FrameResponse(200, "Success", reg)
 	return dr, err
 }
 func (*registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
 	client, err := getClient()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	reg, err := client.Projects.Locations.Registries.List(registry.Parent).Do()
 	if err != nil {
-		dr := model.Response{StatusCode: 500, Message: err.Error()}
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
 		return dr, err
 	}
 
 	log.Info().Msg("Got registry:")
 
-	dr := model.Response{StatusCode: 200, Message: reg}
+	dr := model.FrameResponse(200, "Success", reg)
 	return dr, err
 }

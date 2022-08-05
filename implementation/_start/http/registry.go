@@ -14,7 +14,7 @@ func (r *registrytHandler) NewRegistry(c echo.Context) error {
 	req := new(model.RegistryCreate)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/registries"
@@ -47,7 +47,7 @@ func (r *registrytHandler) UpdateRegistry(c echo.Context) error {
 	req := new(model.RegistryUpdate)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.UpdateMask = c.QueryParam("updateMask")
@@ -71,7 +71,7 @@ func (r *registrytHandler) DeleteRegistry(c echo.Context) error {
 	req := new(model.RegistryDelete)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
@@ -95,7 +95,7 @@ func (r *registrytHandler) GetRegistry(c echo.Context) error {
 	req := new(model.RegistryDelete)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
@@ -119,7 +119,7 @@ func (r *registrytHandler) GetRegistriesRegion(c echo.Context) error {
 	req := new(model.RegistryDelete)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/registries"
@@ -143,7 +143,7 @@ func (r *registrytHandler) GetRegistries(c echo.Context) error {
 	req := new(model.RegistryDelete)
 	if err := c.Bind(req); err != nil {
 		log.Error().Err(err).Msg("")
-		r := model.Response{Message: "Data not good"}
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Parent = c.Param("parent1") + "/" + c.Param("parent2") + "/registries"
