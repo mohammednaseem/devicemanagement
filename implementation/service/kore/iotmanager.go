@@ -3,7 +3,7 @@ package kore
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

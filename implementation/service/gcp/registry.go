@@ -3,7 +3,7 @@ package gcp
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2/google"
 	cloudiot "google.golang.org/api/cloudiot/v1"

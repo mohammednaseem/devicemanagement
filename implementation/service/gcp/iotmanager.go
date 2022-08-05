@@ -1,7 +1,7 @@
 package gcp
 
 import (
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 )
 
 type registryIotService struct {

@@ -30,6 +30,6 @@ type RequestDevice struct {
 
 /////// response
 type Response struct {
-	StatusCode int         `json:"statuscode"  validate:"required"`
-	Message    interface{} `json:"message"  validate:"required"`
+	StatusCode int   `json:"statuscode"  validate:"required"`
+	Message    Frame `json:"message"  validate:"required"`
 }

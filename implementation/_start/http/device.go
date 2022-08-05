@@ -3,11 +3,25 @@ package http
 import (
 	"net/http"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/labstack/echo"
 	"github.com/rs/zerolog/log"
 )
 
+// CreateDevice godoc
+// @Summary      Create Device
+// @Description  create a device under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Success      200  {object}  model.Frame
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices [post]
 func (r *registrytHandler) NewDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := new(model.DeviceCreate)
@@ -31,6 +45,22 @@ func (r *registrytHandler) NewDevice(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// UpdateDevice godoc
+// @Summary      Update Device
+// @Description  update device under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Param        devId  path      string  true  "Device ID"
+// @Success      200  {object}  model.Frame
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices/{devId} [patch]
 func (r *registrytHandler) UpdateDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -56,6 +86,22 @@ func (r *registrytHandler) UpdateDevice(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// DeleteDevice godoc
+// @Summary      Delete Device
+// @Description  delete a device under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Param        devId  path      string  true  "Device ID"
+// @Success      200  {object}  model.Frame
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices/{devId} [delete]
 func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -81,6 +127,22 @@ func (r *registrytHandler) DeleteDevice(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// GetDevice godoc
+// @Summary      Get Device
+// @Description  Get a device under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Param        devId  path      string  true  "Device ID"
+// @Success      200  {object}  model.Frame
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices/{devId} [get]
 func (r *registrytHandler) GetDevice(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -106,6 +168,21 @@ func (r *registrytHandler) GetDevice(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// GetDevices godoc
+// @Summary      Get Devices
+// @Description  Get all devices under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Success      200  {object}  model.GetDevicesResultStruct
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices [get]
 func (r *registrytHandler) GetDevices(c echo.Context) error {
 	ctx := c.Request().Context()
 

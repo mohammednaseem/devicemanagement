@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/rs/zerolog/log"
 	cloudiot "google.golang.org/api/cloudiot/v1"
 )

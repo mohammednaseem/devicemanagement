@@ -76,3 +76,15 @@ type DeviceDelete struct {
 	Region   string `json:"region" validate:"required"`
 	Registry string `json:"registry" validate:"required"`
 }
+type GetDevicesResultNode struct {
+	Id       string `json:"id" validate:"required"`
+	NumID    string `json:"numId" validate:"required"`
+	Blocked  bool   `json:"blocked" validate:"required"`
+	LogLevel string `json:"loglevel" validate:"required"`
+}
+type GetDevicesResultStruct struct {
+	Devices []GetDevicesResultNode `json:"devices" validate:"required"`
+}
+type GetRegistriesResult struct {
+	DeviceRegistries []RegistryCreate `json:"deviceRegistries" validate:"required"`
+}

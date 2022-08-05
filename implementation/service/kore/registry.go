@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -104,6 +104,9 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 	if registry.StateNotificationConfig != nil && strings.Contains(registry.UpdateMask, "state_notification_config") {
 		queryResult.StateNotificationConfig = registry.StateNotificationConfig
 	}
+	if registry.LogLevel != "" && strings.Contains(registry.UpdateMask, "log_level") {
+		queryResult.LogLevel = registry.LogLevel
+	}
 
 	// The field of the document that need to updated.
 	update := bson.D{
@@ -116,6 +119,9 @@ func (r *registryIotService) UpdateRegistry(_ context.Context, registry model.Re
 			{Key: "eventnotificationconfigs", Value: queryResult.EventNotificationConfigs},
 		}}, {Key: "$set", Value: bson.D{
 			{Key: "statenotificationconfig", Value: queryResult.StateNotificationConfig},
+		}},
+		{Key: "$set", Value: bson.D{
+			{Key: "loglevel", Value: queryResult.LogLevel},
 		}},
 	}
 
@@ -245,12 +251,10 @@ func (r *registryIotService) GetRegistriesRegion(_ context.Context, registry mod
 		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
-	type result struct {
-		DeviceRegistries []model.RegistryCreate `json:"deviceRegistries" validate:"required"`
-	}
+
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
-	dr := model.FrameResponse(200, "Success", result{DeviceRegistries: results})
+	dr := model.FrameResponse(200, "Success", model.GetRegistriesResult{DeviceRegistries: results})
 	return dr, err
 }
 func (r *registryIotService) GetRegistries(_ context.Context, registry model.RegistryDelete) (model.Response, error) {
@@ -282,11 +286,8 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 		dr := model.FrameResponse(404, "Registry Not Found", "")
 		return dr, err
 	}
-	type result struct {
-		DeviceRegistries []model.RegistryCreate `json:"deviceRegistries" validate:"required"`
-	}
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
-	dr := model.FrameResponse(200, "Success", result{DeviceRegistries: results})
+	dr := model.FrameResponse(200, "Success", model.GetRegistriesResult{DeviceRegistries: results})
 	return dr, err
 }

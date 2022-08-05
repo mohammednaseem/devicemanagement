@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 
@@ -71,7 +71,7 @@ func (d *deviceIotService) CreateDevice(_ context.Context, dev model.DeviceCreat
 			}
 			if err != nil {
 				log.Error().Msg("Certificate Verification Failed")
-				dr = model.FrameResponse(400, "Certificate Verification Failed", "")
+				dr = model.FrameResponse(403, "Certificate Verification Failed", "")
 				return dr, err
 			}
 
@@ -164,7 +164,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 				}
 				if err != nil {
 					log.Error().Msg("Certificate Verification Failed")
-					dr = model.FrameResponse(400, "Certificate Verification Failed", "")
+					dr = model.FrameResponse(403, "Certificate Verification Failed", "")
 					return dr, err
 				}
 			}
@@ -327,18 +327,10 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 		dr := model.FrameResponse(404, "Device Not Found", "")
 		return dr, err
 	}
-	type resultNode struct {
-		Id       string `json:"id" validate:"required"`
-		NumID    string `json:"numId" validate:"required"`
-		Blocked  bool   `json:"blocked" validate:"required"`
-		LogLevel string `json:"loglevel" validate:"required"`
-	}
-	type resultStruct struct {
-		Devices []resultNode `json:"devices" validate:"required"`
-	}
-	var result resultStruct
+
+	var result model.GetDevicesResultStruct
 	for _, element := range results {
-		node := resultNode{Id: element.Id, NumID: element.NumId, Blocked: element.Blocked, LogLevel: element.LogLevel}
+		node := model.GetDevicesResultNode{Id: element.Id, NumID: element.NumId, Blocked: element.Blocked, LogLevel: element.LogLevel}
 		result.Devices = append(result.Devices, node)
 	}
 

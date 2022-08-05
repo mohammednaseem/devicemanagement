@@ -3,7 +3,7 @@ package usecase
 import (
 	"time"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 )
 
 type registryUsecase struct {

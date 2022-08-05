@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/labstack/echo"
 )
 

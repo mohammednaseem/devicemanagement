@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic

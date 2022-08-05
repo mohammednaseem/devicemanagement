@@ -11,11 +11,11 @@ import (
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	iotDelivery "github.com/gcp-iot/implementation/_start/http"
-	gcpService "github.com/gcp-iot/implementation/service/gcp"
-	koreService "github.com/gcp-iot/implementation/service/kore"
-	iotUsecase "github.com/gcp-iot/implementation/usecase"
-	"github.com/gcp-iot/model"
+	iotDelivery "github.com/RacoWireless/iot-gw-thing-management/implementation/_start/http"
+	gcpService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/gcp"
+	koreService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/kore"
+	iotUsecase "github.com/RacoWireless/iot-gw-thing-management/implementation/usecase"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -61,6 +61,21 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	}
 	return nil
 }
+
+// @title IOT Device Management API
+// @version 1.0
+// @description This is a Iot Device Management  server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.korewireless.com
+// @contact.email support@korewireless.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host iot.korewireless.com
+// @BasePath /
 func main() {
 
 	log.Info().Msg("Go Time")
