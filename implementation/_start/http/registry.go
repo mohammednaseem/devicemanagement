@@ -246,3 +246,83 @@ func (r *registrytHandler) GetRegistries(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// GetRegistry godoc
+// @Summary      Get Registry
+// @Description  Get a Registry
+// @Tags         registry
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Success      200  {object}  model.RegistryCreate
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId} [get]
+func (r *registrytHandler) AddRegistryCert(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(model.AddRegistryCert)
+	if err := c.Bind(req); err != nil {
+		log.Error().Err(err).Msg("")
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
+	req.Parent = req.Name + "/certificate"
+	req.Project = c.Param("parent2")
+	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent6")
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+	mResponse, err := r.rUsecase.AddCertificate(ctx, *req)
+
+	if mResponse.StatusCode != 200 {
+		log.Error().Err(err).Msg("")
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
+	}
+	return c.JSON(http.StatusOK, mResponse.Message)
+}
+
+// GetRegistry godoc
+// @Summary      Get Registry
+// @Description  Get a Registry
+// @Tags         registry
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Success      200  {object}  model.RegistryCreate
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId} [get]
+func (r *registrytHandler) DelRegistryCert(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(model.AddRegistryCert)
+	if err := c.Bind(req); err != nil {
+		log.Error().Err(err).Msg("")
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6")
+	req.Parent = req.Name + "/certificate"
+	req.Project = c.Param("parent2")
+	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent6")
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+	mResponse, err := r.rUsecase.DeleteCertificate(ctx, *req)
+
+	if mResponse.StatusCode != 200 {
+		log.Error().Err(err).Msg("")
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
+	}
+	return c.JSON(http.StatusOK, mResponse.Message)
+}

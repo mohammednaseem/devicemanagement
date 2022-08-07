@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	iotDelivery "github.com/RacoWireless/iot-gw-thing-management/implementation/_start/http"
-	gcpService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/gcp"
+	//gcpService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/gcp"
 	koreService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/kore"
 	iotUsecase "github.com/RacoWireless/iot-gw-thing-management/implementation/usecase"
 	"github.com/RacoWireless/iot-gw-thing-management/model"
@@ -121,8 +121,8 @@ func main() {
 			log.Error().Msg("Configuration Error: ENV_GCPPORT address not available")
 
 		}
-		_deviceService = gcpService.NewDeviceService(gcpurl)
-		_registryService = gcpService.NewRegistryService(gcpurl)
+		//_deviceService = gcpService.NewDeviceService(gcpurl)
+		//_registryService = gcpService.NewRegistryService(gcpurl)
 
 	} else if serviceType == "kore" {
 		MongoCS := viper.GetString("ENV_MONGO_CS")

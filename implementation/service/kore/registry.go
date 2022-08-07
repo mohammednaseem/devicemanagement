@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/api/cloudiot/v1"
 )
 
 func CreateRegPublish(topicId string, dev model.RegistryCreate) error {
@@ -295,5 +296,134 @@ func (r *registryIotService) GetRegistries(_ context.Context, registry model.Reg
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Registries ")
 	dr := model.FrameResponse(200, "Success", model.GetRegistriesResult{DeviceRegistries: results})
+	return dr, err
+}
+func AddRegCertificatePublish(topicId string, dev model.AddRegistryCert) error {
+
+	PubStruct := model.PublishRegistryAddCert{Operation: "POST", Entity: "Registry", Data: dev, Path: "registry/" + dev.Parent}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
+func (r *registryIotService) AddCertificate(_ context.Context, registry model.AddRegistryCert) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	var dr model.Response
+	if queryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.FrameResponse(404, "Registry Not Found", "")
+		return dr, err
+	}
+	filter = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	queryResult.Credentials = append(queryResult.Credentials, &registry.Credentials)
+
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: queryResult.Credentials},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+		return dr, err
+	}
+
+	// print count of documents that affected
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	if r.Publish {
+		err = AddRegCertificatePublish(r.pubTopic, registry)
+		if err != nil {
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+			return dr, err
+		}
+	}
+	dr = model.FrameResponse(201, "Success", "")
+	return dr, err
+}
+func DelRegCertificatePublish(topicId string, dev model.AddRegistryCert) error {
+
+	PubStruct := model.PublishRegistryAddCert{Operation: "DELETE", Entity: "Registry", Data: dev, Path: "registry/" + dev.Parent}
+
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+
+	return err
+}
+func (r *registryIotService) DeleteCertificate(_ context.Context, registry model.AddRegistryCert) (model.Response, error) {
+	Ping(r.ctx, r.client)
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var queryResult model.RegistryCreate
+	err := queryOne(r.ctx, r.client, r.database, r.collection, filter).Decode(&queryResult)
+	var dr model.Response
+	if queryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.FrameResponse(404, "Registry Not Found", "")
+		return dr, err
+	}
+	filter = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: registry.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: registry.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var certificate = registry.Credentials
+	var credentials []cloudiot.RegistryCredential
+	for _, cert := range queryResult.Credentials {
+		if cert.PublicKeyCertificate.Certificate != certificate.PublicKeyCertificate.Certificate {
+			credentials = append(credentials, *cert)
+		}
+
+	}
+
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: credentials},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(r.ctx, r.client, r.database, r.collection, filter, update)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+		return dr, err
+	}
+
+	// print count of documents that affected
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	if r.Publish {
+		err = DelRegCertificatePublish(r.pubTopic, registry)
+		if err != nil {
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+			return dr, err
+		}
+	}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }

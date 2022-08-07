@@ -36,3 +36,27 @@ type PublishRegistryDelete struct {
 	Path      string         `json:"path" validate:"required"`
 	Data      RegistryDelete `json:"data" validate:"required"`
 }
+type PublishRegistryDelCert struct {
+	Operation string          `json:"operation" validate:"required"`
+	Entity    string          `json:"entity" validate:"required"`
+	Path      string          `json:"path" validate:"required"`
+	Data      AddRegistryCert `json:"data" validate:"required"`
+}
+type PublishRegistryAddCert struct {
+	Operation string          `json:"operation" validate:"required"`
+	Entity    string          `json:"entity" validate:"required"`
+	Path      string          `json:"path" validate:"required"`
+	Data      AddRegistryCert `json:"data" validate:"required"`
+}
+type PublishDeviceAddCert struct {
+	Operation string        `json:"operation" validate:"required"`
+	Entity    string        `json:"entity" validate:"required"`
+	Path      string        `json:"path" validate:"required"`
+	Data      AddDeviceCert `json:"data" validate:"required"`
+}
+type PublishDeviceDelCert struct {
+	Operation string        `json:"operation" validate:"required"`
+	Entity    string        `json:"entity" validate:"required"`
+	Path      string        `json:"path" validate:"required"`
+	Data      AddDeviceCert `json:"data" validate:"required"`
+}

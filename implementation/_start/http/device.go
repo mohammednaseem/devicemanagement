@@ -208,3 +208,70 @@ func (r *registrytHandler) GetDevices(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, mResponse.Message)
 }
+
+// GetDevices godoc
+// @Summary      Get Devices
+// @Description  Get all devices under a registry
+// @Tags         device
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project Id"
+// @Param        region  path      string  true  "Region"
+// @Param        registryId  path      string  true  "Registry ID"
+// @Success      200  {object}  model.GetDevicesResultStruct
+// @Failure      400  {object}  model.Frame
+// @Failure      404  {object}  model.Frame
+// @Failure      500  {object}  model.Frame
+// @Router       /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices [get]
+func (r *registrytHandler) AddDevCertificate(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(model.AddDeviceCert)
+	if err := c.Bind(req); err != nil {
+		log.Error().Err(err).Msg("")
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
+	req.Parent = req.Parent + "/certificate"
+	req.Project = c.Param("parent2")
+	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent8")
+	req.Registry = c.Param("parent6")
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+	mResponse, err := r.dUsecase.AddCertificate(ctx, *req)
+
+	if mResponse.StatusCode != 200 {
+		log.Error().Err(err).Msg("")
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
+	}
+	return c.JSON(http.StatusOK, mResponse.Message)
+}
+func (r *registrytHandler) DelDevCertificate(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(model.AddDeviceCert)
+	if err := c.Bind(req); err != nil {
+		log.Error().Err(err).Msg("")
+		r := model.FrameResponse(400, "Invalid Json Received", err.Error())
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
+	req.Parent = req.Parent + "/certificate"
+	req.Project = c.Param("parent2")
+	req.Region = c.Param("parent4")
+	req.Id = c.Param("parent8")
+	req.Registry = c.Param("parent6")
+	if err := c.Validate(req); err != nil {
+		return err
+	}
+	mResponse, err := r.dUsecase.DeleteCertificate(ctx, *req)
+
+	if mResponse.StatusCode != 200 {
+		log.Error().Err(err).Msg("")
+		return c.JSON(mResponse.StatusCode, mResponse.Message)
+	}
+	return c.JSON(http.StatusOK, mResponse.Message)
+}

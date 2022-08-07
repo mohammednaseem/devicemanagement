@@ -12,6 +12,7 @@ import (
 	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
+	"google.golang.org/api/cloudiot/v1"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -155,7 +156,7 @@ func (d *deviceIotService) UpdateDevice(_ context.Context, dev model.DeviceUpdat
 			}
 		}
 		for _, cert := range dev.Credentials {
-			if !slices.Contains(noCerts, cert.PublicKey.Format) {
+			if !slices.Contains(noCerts, cert.PublicKey.Key) {
 				for _, ca := range rqueryResult.Credentials {
 					err = verifyCert([]byte(cert.PublicKey.Key), []byte(ca.PublicKeyCertificate.Certificate))
 					if err == nil {
@@ -337,5 +338,175 @@ func (d *deviceIotService) GetDevices(_ context.Context, dev model.DeviceDelete)
 	// print the count of affected documents
 	log.Info().Msg("Got Details For Devices ")
 	dr := model.FrameResponse(200, "Success", result)
+	return dr, err
+}
+func AddDevCertificatePublish(topicId string, dev model.AddDeviceCert) error {
+
+	PubStruct := model.PublishDeviceAddCert{Operation: "POST", Entity: "Device", Data: dev, Path: "device/" + dev.Parent}
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+	return err
+}
+func (d *deviceIotService) AddCertificate(_ context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	Ping(d.ctx, d.client)
+
+	var rfilter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Registry}}},
+		{Key: "region", Value: bson.D{{Key: "$eq", Value: dev.Region}}},
+		{Key: "project", Value: bson.D{{Key: "$eq", Value: dev.Project}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var rqueryResult model.RegistryCreate
+	var dr model.Response
+	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
+	if rqueryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.FrameResponse(404, "Registry Not Found", "")
+		return dr, err
+	}
+
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var queryResult model.DeviceCreate
+	err = queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
+	if queryResult.Id == "" {
+		log.Error().Msg("No Device Found")
+		dr = model.FrameResponse(404, "Device Not Found", "")
+		return dr, err
+	}
+	var certificate = dev.Credentials
+	if len(rqueryResult.Credentials) > 0 {
+
+		for _, ca := range rqueryResult.Credentials {
+			err = verifyCert([]byte(certificate.PublicKey.Key), []byte(ca.PublicKeyCertificate.Certificate))
+			if err == nil {
+				break
+			}
+		}
+		if err != nil {
+			log.Error().Msg("Certificate Verification Failed")
+			dr = model.FrameResponse(403, "Certificate Verification Failed", "")
+			return dr, err
+		}
+	}
+	queryResult.Credentials = append(queryResult.Credentials, &certificate)
+	filter = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: queryResult.Credentials},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.dcollection, filter, update)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+		return dr, err
+	}
+
+	// print count of documents that affected
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	if d.Publish {
+		err = AddDevCertificatePublish(d.pubTopic, dev)
+		if err != nil {
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+			return dr, err
+		}
+	}
+	dr = model.FrameResponse(201, "Success", "")
+	return dr, err
+}
+func DeleteDevCertificatePublish(topicId string, dev model.AddDeviceCert) error {
+
+	PubStruct := model.PublishDeviceAddCert{Operation: "DELETE", Entity: "Device", Data: dev, Path: "device/" + dev.Parent}
+	msg, err := json.Marshal(PubStruct)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+	err = publish(dev.Project, topicId, msg)
+	return err
+}
+func (d *deviceIotService) DeleteCertificate(_ context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	Ping(d.ctx, d.client)
+
+	var rfilter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Registry}}},
+		{Key: "region", Value: bson.D{{Key: "$eq", Value: dev.Region}}},
+		{Key: "project", Value: bson.D{{Key: "$eq", Value: dev.Project}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var rqueryResult model.RegistryCreate
+	var dr model.Response
+	err := queryOne(d.ctx, d.client, d.database, d.rcollection, rfilter).Decode(&rqueryResult)
+	if rqueryResult.Id == "" {
+		log.Error().Msg("No Registry Found")
+		dr = model.FrameResponse(404, "Registry Not Found", "")
+		return dr, err
+	}
+
+	var filter interface{} = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+	var queryResult model.DeviceCreate
+	err = queryOne(d.ctx, d.client, d.database, d.dcollection, filter).Decode(&queryResult)
+	if queryResult.Id == "" {
+		log.Error().Msg("No Device Found")
+		dr = model.FrameResponse(404, "Device Not Found", "")
+		return dr, err
+	}
+	var certificate = dev.Credentials
+	var credentials []cloudiot.DeviceCredential
+	for _, cert := range queryResult.Credentials {
+		if cert.PublicKey.Key != certificate.PublicKey.Key {
+			credentials = append(credentials, *cert)
+		}
+
+	}
+	filter = bson.D{
+		{Key: "id", Value: bson.D{{Key: "$eq", Value: dev.Id}}}, {Key: "name", Value: bson.D{{Key: "$eq", Value: dev.Name}}},
+		{Key: "decomissioned", Value: bson.D{{Key: "$eq", Value: false}}},
+	}
+
+	// The field of the document that need to updated.
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "credentials", Value: credentials},
+		}},
+	}
+
+	// Returns result of updated document and a error.
+	updateResult, err := UpdateOne(d.ctx, d.client, d.database, d.dcollection, filter, update)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+		return dr, err
+	}
+
+	// print count of documents that affected
+	log.Info().Msg("update single document")
+	log.Info().Msg(fmt.Sprintf("%d", updateResult.ModifiedCount))
+	if d.Publish {
+		err = DeleteDevCertificatePublish(d.pubTopic, dev)
+		if err != nil {
+			dr := model.FrameResponse(500, "Internal Server Error", err.Error())
+			return dr, err
+		}
+	}
+	dr = model.FrameResponse(200, "Success", "")
 	return dr, err
 }

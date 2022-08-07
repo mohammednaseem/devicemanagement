@@ -71,3 +71,29 @@ func (i *deviceUsecase) GetDevices(ctx context.Context, dev model.DeviceDelete) 
 	}
 	return dr, nil
 }
+func (i *deviceUsecase) AddCertificate(ctx context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.deviceService.AddCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *deviceUsecase) DeleteCertificate(ctx context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.deviceService.DeleteCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}

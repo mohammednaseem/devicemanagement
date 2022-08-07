@@ -85,3 +85,29 @@ func (i *registryUsecase) GetRegistries(ctx context.Context, registry model.Regi
 	}
 	return dr, nil
 }
+func (i *registryUsecase) AddCertificate(ctx context.Context, dev model.AddRegistryCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.AddCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *registryUsecase) DeleteCertificate(ctx context.Context, dev model.AddRegistryCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.DeleteCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}

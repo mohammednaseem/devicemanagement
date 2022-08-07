@@ -88,3 +88,20 @@ type GetDevicesResultStruct struct {
 type GetRegistriesResult struct {
 	DeviceRegistries []RegistryCreate `json:"deviceRegistries" validate:"required"`
 }
+type AddDeviceCert struct {
+	Project     string                    `json:"project" validate:"required"`
+	Region      string                    `json:"region" validate:"required"`
+	Registry    string                    `json:"registry" validate:"required"`
+	Parent      string                    `json:"parent" validate:"required"`
+	Id          string                    `json:"id" validate:"required"`
+	Name        string                    `json:"name" validate:"required"`
+	Credentials cloudiot.DeviceCredential `json:"credentials" validate:"required"`
+}
+type AddRegistryCert struct {
+	Project     string                      `json:"project" validate:"required"`
+	Region      string                      `json:"region" validate:"required"`
+	Parent      string                      `json:"parent" validate:"required"`
+	Id          string                      `json:"id" validate:"required"`
+	Name        string                      `json:"name" validate:"required"`
+	Credentials cloudiot.RegistryCredential `json:"credentials" validate:"required"`
+}
