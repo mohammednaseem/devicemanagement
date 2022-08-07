@@ -233,7 +233,7 @@ func (r *registrytHandler) AddDevCertificate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
-	req.Parent = req.Parent + "/certificate"
+	req.Parent = req.Name + "/certificate"
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
 	req.Id = c.Param("parent8")
@@ -259,7 +259,7 @@ func (r *registrytHandler) DelDevCertificate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, r)
 	}
 	req.Name = c.Param("parent1") + "/" + c.Param("parent2") + "/" + c.Param("parent3") + "/" + c.Param("parent4") + "/" + c.Param("parent5") + "/" + c.Param("parent6") + "/" + c.Param("parent7") + "/" + c.Param("parent8")
-	req.Parent = req.Parent + "/certificate"
+	req.Parent = req.Name + "/certificate"
 	req.Project = c.Param("parent2")
 	req.Region = c.Param("parent4")
 	req.Id = c.Param("parent8")

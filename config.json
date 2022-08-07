@@ -3,10 +3,10 @@
     "ENV_AUTH_SERVER": ":8091",
     "ENV_SERVICE_TYPE": "kore",
     "ENV_MONGO_CS": "mongodb+srv://shaiz:12345@cluster0.ugy2c.mongodb.net/?retryWrites=true&w=majority",
-    "ENV_MONGO_DB": "test1",
+    "ENV_MONGO_DB": "test",
     "ENV_REGISTRY_COLLECTION": "Reg",
     "ENV_DEVICE_COLLECTION": "Dev",
-    "ENV_PUBLISH":false,
+    "ENV_PUBLISH":true,
     "ENV_PUB_TOPIC":"test"
 
 }
