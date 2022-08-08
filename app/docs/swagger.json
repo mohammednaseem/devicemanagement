@@ -1,7 +1,964 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a Iot Device Management  server.",
+        "title": "IOT Device Management API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.korewireless.com",
+            "email": "support@korewireless.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
     },
-    "paths": {}
+    "host": "iot.korewireless.com",
+    "basePath": "/",
+    "paths": {
+        "/device/projects/{projectId}/locations/{region}/registries": {
+            "get": {
+                "description": "Get all Registries Under Region",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Get Registries With Region",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create a Registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Create Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/projects/{projectId}/locations/{region}/registries/{registryId}": {
+            "get": {
+                "description": "Get a Registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Get Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.RegistryCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a Registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Delete Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a Registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Update Registry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/projects/{projectId}/locations/{region}/registries/{registryId}/devices": {
+            "get": {
+                "description": "Get all devices under a registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "Get Devices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create a device under a registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "Create Device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/projects/{projectId}/locations/{region}/registries/{registryId}/devices/{devId}": {
+            "get": {
+                "description": "Get a device under a registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "Get Device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "devId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete a device under a registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "Delete Device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "devId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "update device under a registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "device"
+                ],
+                "summary": "Update Device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Region",
+                        "name": "region",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registry ID",
+                        "name": "registryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "devId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/projects/{projectId}/registries": {
+            "get": {
+                "description": "Get All Registries Under Project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "registry"
+                ],
+                "summary": "Get Registries",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Id",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeviceCreate"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.Frame"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "cloudiot.DeviceCredential": {
+            "type": "object",
+            "properties": {
+                "expirationTime": {
+                    "description": "ExpirationTime: [Optional] The time at which this credential becomes\ninvalid. This credential will be ignored for new client\nauthentication requests after this timestamp; however, it will not be\nautomatically deleted.",
+                    "type": "string"
+                },
+                "publicKey": {
+                    "description": "PublicKey: A public key used to verify the signature of JSON Web\nTokens (JWTs). When adding a new device credential, either via device\ncreation or via modifications, this public key credential may be\nrequired to be signed by one of the registry level certificates. More\nspecifically, if the registry contains at least one certificate, any\nnew device credential must be signed by one of the registry\ncertificates. As a result, when the registry contains certificates,\nonly X.509 certificates are accepted as device credentials. However,\nif the registry does not contain a certificate, self-signed\ncertificates and public keys will be accepted. New device credentials\nmust be different from every registry-level certificate.",
+                    "$ref": "#/definitions/cloudiot.PublicKeyCredential"
+                }
+            }
+        },
+        "cloudiot.EventNotificationConfig": {
+            "type": "object",
+            "properties": {
+                "pubsubTopicName": {
+                    "description": "PubsubTopicName: A Cloud Pub/Sub topic name. For example,\n`projects/myProject/topics/deviceEvents`.",
+                    "type": "string"
+                },
+                "subfolderMatches": {
+                    "description": "SubfolderMatches: If the subfolder name matches this string exactly,\nthis configuration will be used. The string must not include the\nleading '/' character. If empty, all strings are matched. This field\nis used only for telemetry events; subfolders are not supported for\nstate changes.",
+                    "type": "string"
+                }
+            }
+        },
+        "cloudiot.HttpConfig": {
+            "type": "object",
+            "properties": {
+                "httpEnabledState": {
+                    "description": "HttpEnabledState: If enabled, allows devices to use DeviceService via\nthe HTTP protocol. Otherwise, any requests to DeviceService will fail\nfor this registry.\n\nPossible values:\n  \"HTTP_STATE_UNSPECIFIED\" - No HTTP state specified. If not\nspecified, DeviceService will be enabled by default.\n  \"HTTP_ENABLED\" - Enables DeviceService (HTTP) service for the\nregistry.\n  \"HTTP_DISABLED\" - Disables DeviceService (HTTP) service for the\nregistry.",
+                    "type": "string"
+                }
+            }
+        },
+        "cloudiot.MqttConfig": {
+            "type": "object",
+            "properties": {
+                "mqttEnabledState": {
+                    "description": "MqttEnabledState: If enabled, allows connections using the MQTT\nprotocol. Otherwise, MQTT connections to this registry will fail.\n\nPossible values:\n  \"MQTT_STATE_UNSPECIFIED\" - No MQTT state specified. If not\nspecified, MQTT will be enabled by default.\n  \"MQTT_ENABLED\" - Enables a MQTT connection.\n  \"MQTT_DISABLED\" - Disables a MQTT connection.",
+                    "type": "string"
+                }
+            }
+        },
+        "cloudiot.PublicKeyCertificate": {
+            "type": "object",
+            "properties": {
+                "certificate": {
+                    "description": "Certificate: The certificate data.",
+                    "type": "string"
+                },
+                "format": {
+                    "description": "Format: The certificate format.\n\nPossible values:\n  \"UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT\" - The format has not\nbeen specified. This is an invalid default value and must not be\nused.\n  \"X509_CERTIFICATE_PEM\" - An X.509v3 certificate\n([RFC5280](https://www.ietf.org/rfc/rfc5280.txt)), encoded in base64,\nand wrapped by `-----BEGIN CERTIFICATE-----` and `-----END\nCERTIFICATE-----`.",
+                    "type": "string"
+                },
+                "x509Details": {
+                    "description": "X509Details: [Output only] The certificate details. Used only for\nX.509 certificates.",
+                    "$ref": "#/definitions/cloudiot.X509CertificateDetails"
+                }
+            }
+        },
+        "cloudiot.PublicKeyCredential": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "description": "Format: The format of the key.\n\nPossible values:\n  \"UNSPECIFIED_PUBLIC_KEY_FORMAT\" - The format has not been\nspecified. This is an invalid default value and must not be used.\n  \"RSA_PEM\" - An RSA public key encoded in base64, and wrapped by\n`-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----`. This can\nbe used to verify `RS256` signatures in JWT tokens ([RFC7518](\nhttps://www.ietf.org/rfc/rfc7518.txt)).\n  \"RSA_X509_PEM\" - As RSA_PEM, but wrapped in an X.509v3 certificate\n([RFC5280]( https://www.ietf.org/rfc/rfc5280.txt)), encoded in\nbase64, and wrapped by `-----BEGIN CERTIFICATE-----` and `-----END\nCERTIFICATE-----`.\n  \"ES256_PEM\" - Public key for the ECDSA algorithm using P-256 and\nSHA-256, encoded in base64, and wrapped by `-----BEGIN PUBLIC\nKEY-----` and `-----END PUBLIC KEY-----`. This can be used to verify\nJWT tokens with the `ES256` algorithm\n([RFC7518](https://www.ietf.org/rfc/rfc7518.txt)). This curve is\ndefined in [OpenSSL](https://www.openssl.org/) as the `prime256v1`\ncurve.\n  \"ES256_X509_PEM\" - As ES256_PEM, but wrapped in an X.509v3\ncertificate ([RFC5280]( https://www.ietf.org/rfc/rfc5280.txt)),\nencoded in base64, and wrapped by `-----BEGIN CERTIFICATE-----` and\n`-----END CERTIFICATE-----`.",
+                    "type": "string"
+                },
+                "key": {
+                    "description": "Key: The key data.",
+                    "type": "string"
+                }
+            }
+        },
+        "cloudiot.RegistryCredential": {
+            "type": "object",
+            "properties": {
+                "publicKeyCertificate": {
+                    "description": "PublicKeyCertificate: A public key certificate used to verify the\ndevice credentials.",
+                    "$ref": "#/definitions/cloudiot.PublicKeyCertificate"
+                }
+            }
+        },
+        "cloudiot.StateNotificationConfig": {
+            "type": "object",
+            "properties": {
+                "pubsubTopicName": {
+                    "description": "PubsubTopicName: A Cloud Pub/Sub topic name. For example,\n`projects/myProject/topics/deviceEvents`.",
+                    "type": "string"
+                }
+            }
+        },
+        "cloudiot.X509CertificateDetails": {
+            "type": "object",
+            "properties": {
+                "expiryTime": {
+                    "description": "ExpiryTime: The time the certificate becomes invalid.",
+                    "type": "string"
+                },
+                "issuer": {
+                    "description": "Issuer: The entity that signed the certificate.",
+                    "type": "string"
+                },
+                "publicKeyType": {
+                    "description": "PublicKeyType: The type of public key in the certificate.",
+                    "type": "string"
+                },
+                "signatureAlgorithm": {
+                    "description": "SignatureAlgorithm: The algorithm used to sign the certificate.",
+                    "type": "string"
+                },
+                "startTime": {
+                    "description": "StartTime: The time the certificate becomes valid.",
+                    "type": "string"
+                },
+                "subject": {
+                    "description": "Subject: The entity the certificate and public key belong to.",
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeviceCreate": {
+            "type": "object",
+            "required": [
+                "credentials",
+                "id",
+                "name",
+                "parent",
+                "project",
+                "region",
+                "registry"
+            ],
+            "properties": {
+                "blocked": {
+                    "type": "boolean"
+                },
+                "createdOn": {
+                    "type": "string"
+                },
+                "credentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudiot.DeviceCredential"
+                    }
+                },
+                "decomissioned": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logLevel": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "numId": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "registry": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Frame": {
+            "type": "object",
+            "required": [
+                "details",
+                "message",
+                "stateCode"
+            ],
+            "properties": {
+                "details": {},
+                "message": {
+                    "type": "string"
+                },
+                "stateCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.RegistryCreate": {
+            "type": "object",
+            "required": [
+                "eventNotificationConfigs",
+                "id",
+                "name",
+                "parent",
+                "project",
+                "region"
+            ],
+            "properties": {
+                "createdOn": {
+                    "type": "string"
+                },
+                "credentials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudiot.RegistryCredential"
+                    }
+                },
+                "decomissioned": {
+                    "type": "boolean"
+                },
+                "eventNotificationConfigs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cloudiot.EventNotificationConfig"
+                    }
+                },
+                "httpConfig": {
+                    "$ref": "#/definitions/cloudiot.HttpConfig"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "logLevel": {
+                    "type": "string"
+                },
+                "mqttConfig": {
+                    "$ref": "#/definitions/cloudiot.MqttConfig"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "stateNotificationConfig": {
+                    "$ref": "#/definitions/cloudiot.StateNotificationConfig"
+                }
+            }
+        }
+    }
 }

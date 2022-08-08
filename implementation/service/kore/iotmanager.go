@@ -3,7 +3,7 @@ package kore
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -13,6 +13,7 @@ type registryIotService struct {
 	database   string
 	pubTopic   string
 	ctx        context.Context
+	Publish    bool
 }
 type deviceIotService struct {
 	client      *mongo.Client
@@ -21,18 +22,20 @@ type deviceIotService struct {
 	database    string
 	pubTopic    string
 	ctx         context.Context
+	Publish     bool
 }
 
-func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string, PubTopic string) model.IRegistryService {
+func NewRegistryService(ctx context.Context, conn *mongo.Client, collection string, database string, PubTopic string, Publish bool) model.IRegistryService {
 	return &registryIotService{
 		client:     conn,
 		collection: collection,
 		database:   database,
 		ctx:        ctx,
 		pubTopic:   PubTopic,
+		Publish:    Publish,
 	}
 }
-func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection string, rcollection string, database string, PubTopic string) model.IDeviceService {
+func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection string, rcollection string, database string, PubTopic string, Publish bool) model.IDeviceService {
 	return &deviceIotService{
 		client:      conn,
 		dcollection: dcollection, //device col
@@ -40,5 +43,6 @@ func NewDeviceService(ctx context.Context, conn *mongo.Client, dcollection strin
 		database:    database,
 		ctx:         ctx,
 		pubTopic:    PubTopic,
+		Publish:     Publish,
 	}
 }

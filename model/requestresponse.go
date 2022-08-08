@@ -30,6 +30,31 @@ type RequestDevice struct {
 
 /////// response
 type Response struct {
-	StatusCode int         `json:"statuscode"  validate:"required"`
-	Message    interface{} `json:"message"  validate:"required"`
+	StatusCode int   `json:"statuscode"  validate:"required"`
+	Message    Frame `json:"message"  validate:"required"`
+}
+type GenericResponse struct {
+	StateCode int    `json:"stateCode"  validate:"required"`
+	Message   string `json:"message"  validate:"required"`
+	Details   string `json:"details"  validate:"required"`
+}
+type SuccessGetDeviceResponse struct {
+	StateCode int          `json:"stateCode"  validate:"required"`
+	Message   string       `json:"message"  validate:"required"`
+	Details   DeviceCreate `json:"details"  validate:"required"`
+}
+type SuccessGetRegistryResponse struct {
+	StateCode int            `json:"stateCode"  validate:"required"`
+	Message   string         `json:"message"  validate:"required"`
+	Details   RegistryCreate `json:"details"  validate:"required"`
+}
+type SuccessGetDevicesResponse struct {
+	StateCode int                    `json:"stateCode"  validate:"required"`
+	Message   string                 `json:"message"  validate:"required"`
+	Details   GetDevicesResultStruct `json:"details"  validate:"required"`
+}
+type SuccessGetRegistriesResponse struct {
+	StateCode int                 `json:"stateCode"  validate:"required"`
+	Message   string              `json:"message"  validate:"required"`
+	Details   GetRegistriesResult `json:"details"  validate:"required"`
 }

@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
@@ -59,12 +59,51 @@ func (i *registryUsecase) GetRegistry(ctx context.Context, registry model.Regist
 	}
 	return dr, nil
 }
+func (i *registryUsecase) GetRegistriesRegion(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.GetRegistriesRegion(ctx, registry)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
 func (i *registryUsecase) GetRegistries(ctx context.Context, registry model.RegistryDelete) (model.Response, error) {
 	var cancel context.CancelFunc
 	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
 	defer cancel()
 
 	dr, err := i.registryService.GetRegistries(ctx, registry)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *registryUsecase) AddCertificate(ctx context.Context, dev model.AddRegistryCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.AddCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *registryUsecase) DeleteCertificate(ctx context.Context, dev model.AddRegistryCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.registryService.DeleteCertificate(ctx, dev)
 	if err != nil {
 
 		return dr, err

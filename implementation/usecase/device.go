@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/gcp-iot/model"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 )
 
 // createRegistry creates a IoT Core device registry associated with a PubSub topic
@@ -64,6 +64,32 @@ func (i *deviceUsecase) GetDevices(ctx context.Context, dev model.DeviceDelete) 
 	defer cancel()
 
 	dr, err := i.deviceService.GetDevices(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *deviceUsecase) AddCertificate(ctx context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.deviceService.AddCertificate(ctx, dev)
+	if err != nil {
+
+		return dr, err
+
+	}
+	return dr, nil
+}
+func (i *deviceUsecase) DeleteCertificate(ctx context.Context, dev model.AddDeviceCert) (model.Response, error) {
+	var cancel context.CancelFunc
+	_, cancel = context.WithTimeout(ctx, i.contextTimeout)
+	defer cancel()
+
+	dr, err := i.deviceService.DeleteCertificate(ctx, dev)
 	if err != nil {
 
 		return dr, err

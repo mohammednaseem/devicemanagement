@@ -1,4 +1,737 @@
+basePath: /
+definitions:
+  cloudiot.DeviceCredential:
+    properties:
+      expirationTime:
+        description: |-
+          ExpirationTime: [Optional] The time at which this credential becomes
+          invalid. This credential will be ignored for new client
+          authentication requests after this timestamp; however, it will not be
+          automatically deleted.
+        type: string
+      publicKey:
+        $ref: '#/definitions/cloudiot.PublicKeyCredential'
+        description: |-
+          PublicKey: A public key used to verify the signature of JSON Web
+          Tokens (JWTs). When adding a new device credential, either via device
+          creation or via modifications, this public key credential may be
+          required to be signed by one of the registry level certificates. More
+          specifically, if the registry contains at least one certificate, any
+          new device credential must be signed by one of the registry
+          certificates. As a result, when the registry contains certificates,
+          only X.509 certificates are accepted as device credentials. However,
+          if the registry does not contain a certificate, self-signed
+          certificates and public keys will be accepted. New device credentials
+          must be different from every registry-level certificate.
+    type: object
+  cloudiot.EventNotificationConfig:
+    properties:
+      pubsubTopicName:
+        description: |-
+          PubsubTopicName: A Cloud Pub/Sub topic name. For example,
+          `projects/myProject/topics/deviceEvents`.
+        type: string
+      subfolderMatches:
+        description: |-
+          SubfolderMatches: If the subfolder name matches this string exactly,
+          this configuration will be used. The string must not include the
+          leading '/' character. If empty, all strings are matched. This field
+          is used only for telemetry events; subfolders are not supported for
+          state changes.
+        type: string
+    type: object
+  cloudiot.HttpConfig:
+    properties:
+      httpEnabledState:
+        description: |-
+          HttpEnabledState: If enabled, allows devices to use DeviceService via
+          the HTTP protocol. Otherwise, any requests to DeviceService will fail
+          for this registry.
+
+          Possible values:
+            "HTTP_STATE_UNSPECIFIED" - No HTTP state specified. If not
+          specified, DeviceService will be enabled by default.
+            "HTTP_ENABLED" - Enables DeviceService (HTTP) service for the
+          registry.
+            "HTTP_DISABLED" - Disables DeviceService (HTTP) service for the
+          registry.
+        type: string
+    type: object
+  cloudiot.MqttConfig:
+    properties:
+      mqttEnabledState:
+        description: |-
+          MqttEnabledState: If enabled, allows connections using the MQTT
+          protocol. Otherwise, MQTT connections to this registry will fail.
+
+          Possible values:
+            "MQTT_STATE_UNSPECIFIED" - No MQTT state specified. If not
+          specified, MQTT will be enabled by default.
+            "MQTT_ENABLED" - Enables a MQTT connection.
+            "MQTT_DISABLED" - Disables a MQTT connection.
+        type: string
+    type: object
+  cloudiot.PublicKeyCertificate:
+    properties:
+      certificate:
+        description: 'Certificate: The certificate data.'
+        type: string
+      format:
+        description: |-
+          Format: The certificate format.
+
+          Possible values:
+            "UNSPECIFIED_PUBLIC_KEY_CERTIFICATE_FORMAT" - The format has not
+          been specified. This is an invalid default value and must not be
+          used.
+            "X509_CERTIFICATE_PEM" - An X.509v3 certificate
+          ([RFC5280](https://www.ietf.org/rfc/rfc5280.txt)), encoded in base64,
+          and wrapped by `-----BEGIN CERTIFICATE-----` and `-----END
+          CERTIFICATE-----`.
+        type: string
+      x509Details:
+        $ref: '#/definitions/cloudiot.X509CertificateDetails'
+        description: |-
+          X509Details: [Output only] The certificate details. Used only for
+          X.509 certificates.
+    type: object
+  cloudiot.PublicKeyCredential:
+    properties:
+      format:
+        description: |-
+          Format: The format of the key.
+
+          Possible values:
+            "UNSPECIFIED_PUBLIC_KEY_FORMAT" - The format has not been
+          specified. This is an invalid default value and must not be used.
+            "RSA_PEM" - An RSA public key encoded in base64, and wrapped by
+          `-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----`. This can
+          be used to verify `RS256` signatures in JWT tokens ([RFC7518](
+          https://www.ietf.org/rfc/rfc7518.txt)).
+            "RSA_X509_PEM" - As RSA_PEM, but wrapped in an X.509v3 certificate
+          ([RFC5280]( https://www.ietf.org/rfc/rfc5280.txt)), encoded in
+          base64, and wrapped by `-----BEGIN CERTIFICATE-----` and `-----END
+          CERTIFICATE-----`.
+            "ES256_PEM" - Public key for the ECDSA algorithm using P-256 and
+          SHA-256, encoded in base64, and wrapped by `-----BEGIN PUBLIC
+          KEY-----` and `-----END PUBLIC KEY-----`. This can be used to verify
+          JWT tokens with the `ES256` algorithm
+          ([RFC7518](https://www.ietf.org/rfc/rfc7518.txt)). This curve is
+          defined in [OpenSSL](https://www.openssl.org/) as the `prime256v1`
+          curve.
+            "ES256_X509_PEM" - As ES256_PEM, but wrapped in an X.509v3
+          certificate ([RFC5280]( https://www.ietf.org/rfc/rfc5280.txt)),
+          encoded in base64, and wrapped by `-----BEGIN CERTIFICATE-----` and
+          `-----END CERTIFICATE-----`.
+        type: string
+      key:
+        description: 'Key: The key data.'
+        type: string
+    type: object
+  cloudiot.RegistryCredential:
+    properties:
+      publicKeyCertificate:
+        $ref: '#/definitions/cloudiot.PublicKeyCertificate'
+        description: |-
+          PublicKeyCertificate: A public key certificate used to verify the
+          device credentials.
+    type: object
+  cloudiot.StateNotificationConfig:
+    properties:
+      pubsubTopicName:
+        description: |-
+          PubsubTopicName: A Cloud Pub/Sub topic name. For example,
+          `projects/myProject/topics/deviceEvents`.
+        type: string
+    type: object
+  cloudiot.X509CertificateDetails:
+    properties:
+      expiryTime:
+        description: 'ExpiryTime: The time the certificate becomes invalid.'
+        type: string
+      issuer:
+        description: 'Issuer: The entity that signed the certificate.'
+        type: string
+      publicKeyType:
+        description: 'PublicKeyType: The type of public key in the certificate.'
+        type: string
+      signatureAlgorithm:
+        description: 'SignatureAlgorithm: The algorithm used to sign the certificate.'
+        type: string
+      startTime:
+        description: 'StartTime: The time the certificate becomes valid.'
+        type: string
+      subject:
+        description: 'Subject: The entity the certificate and public key belong to.'
+        type: string
+    type: object
+  model.DeviceCreate:
+    properties:
+      blocked:
+        type: boolean
+      createdOn:
+        type: string
+      credentials:
+        items:
+          $ref: '#/definitions/cloudiot.DeviceCredential'
+        type: array
+      decomissioned:
+        type: boolean
+      id:
+        type: string
+      logLevel:
+        type: string
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      numId:
+        type: string
+      parent:
+        type: string
+      project:
+        type: string
+      region:
+        type: string
+      registry:
+        type: string
+    required:
+    - credentials
+    - id
+    - name
+    - parent
+    - project
+    - region
+    - registry
+    type: object
+  model.Frame:
+    properties:
+      details: {}
+      message:
+        type: string
+      stateCode:
+        type: integer
+    required:
+    - details
+    - message
+    - stateCode
+    type: object
+  model.RegistryCreate:
+    properties:
+      createdOn:
+        type: string
+      credentials:
+        items:
+          $ref: '#/definitions/cloudiot.RegistryCredential'
+        type: array
+      decomissioned:
+        type: boolean
+      eventNotificationConfigs:
+        items:
+          $ref: '#/definitions/cloudiot.EventNotificationConfig'
+        type: array
+      httpConfig:
+        $ref: '#/definitions/cloudiot.HttpConfig'
+      id:
+        type: string
+      logLevel:
+        type: string
+      mqttConfig:
+        $ref: '#/definitions/cloudiot.MqttConfig'
+      name:
+        type: string
+      parent:
+        type: string
+      project:
+        type: string
+      region:
+        type: string
+      stateNotificationConfig:
+        $ref: '#/definitions/cloudiot.StateNotificationConfig'
+    required:
+    - eventNotificationConfigs
+    - id
+    - name
+    - parent
+    - project
+    - region
+    type: object
+host: iot.korewireless.com
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@korewireless.com
+    name: API Support
+    url: http://www.korewireless.com
+  description: This is a Iot Device Management  server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: IOT Device Management API
+  version: "1.0"
+paths:
+  /device/projects/{projectId}/locations/{region}/registries:
+    get:
+      consumes:
+      - application/json
+      description: Get all Registries Under Region
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeviceCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Get Registries With Region
+      tags:
+      - registry
+    post:
+      consumes:
+      - application/json
+      description: create a Registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Create Registry
+      tags:
+      - registry
+  /device/projects/{projectId}/locations/{region}/registries/{registryId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Delete Registry
+      tags:
+      - registry
+    get:
+      consumes:
+      - application/json
+      description: Get a Registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RegistryCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Get Registry
+      tags:
+      - registry
+    patch:
+      consumes:
+      - application/json
+      description: Update a Registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Update Registry
+      tags:
+      - registry
+  /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices:
+    get:
+      consumes:
+      - application/json
+      description: Get all devices under a registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeviceCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Get Devices
+      tags:
+      - device
+    post:
+      consumes:
+      - application/json
+      description: create a device under a registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Create Device
+      tags:
+      - device
+  /device/projects/{projectId}/locations/{region}/registries/{registryId}/devices/{devId}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a device under a registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      - description: Device ID
+        in: path
+        name: devId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Delete Device
+      tags:
+      - device
+    get:
+      consumes:
+      - application/json
+      description: Get a device under a registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      - description: Device ID
+        in: path
+        name: devId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeviceCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Get Device
+      tags:
+      - device
+    patch:
+      consumes:
+      - application/json
+      description: update device under a registry
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Region
+        in: path
+        name: region
+        required: true
+        type: string
+      - description: Registry ID
+        in: path
+        name: registryId
+        required: true
+        type: string
+      - description: Device ID
+        in: path
+        name: devId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Update Device
+      tags:
+      - device
+  /device/projects/{projectId}/registries:
+    get:
+      consumes:
+      - application/json
+      description: Get All Registries Under Project
+      parameters:
+      - description: Project Id
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DeviceCreate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.Frame'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.Frame'
+      summary: Get Registries
+      tags:
+      - registry
 swagger: "2.0"

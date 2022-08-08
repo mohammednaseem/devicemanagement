@@ -11,11 +11,11 @@ import (
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	gcpService "github.com/gcp-iot/implementation/service/gcp"
-	koreService "github.com/gcp-iot/implementation/service/kore"
-	iotDelivery "github.com/gcp-iot/implementation/start/http"
-	iotUsecase "github.com/gcp-iot/implementation/usecase"
-	"github.com/gcp-iot/model"
+	iotDelivery "github.com/RacoWireless/iot-gw-thing-management/implementation/_start/http"
+	//gcpService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/gcp"
+	koreService "github.com/RacoWireless/iot-gw-thing-management/implementation/service/kore"
+	iotUsecase "github.com/RacoWireless/iot-gw-thing-management/implementation/usecase"
+	"github.com/RacoWireless/iot-gw-thing-management/model"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -61,6 +61,21 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	}
 	return nil
 }
+
+// @title IOT Device Management API
+// @version 1.0
+// @description This is a Iot Device Management  server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.korewireless.com
+// @contact.email support@korewireless.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host iot.korewireless.com
+// @BasePath /
 func main() {
 
 	log.Info().Msg("Go Time")
@@ -90,7 +105,7 @@ func main() {
 
 	timeoutContext := time.Duration(viper.GetInt("CONTEXT.TIMEOUT")) * time.Second
 
-	serviceType := viper.GetString("ServiceType")
+	serviceType := viper.GetString("ENV_SERVICE_TYPE")
 	if serviceType == "" {
 		log.Error().Msg("Configuration Error: ServiceType not available")
 
@@ -106,32 +121,33 @@ func main() {
 			log.Error().Msg("Configuration Error: ENV_GCPPORT address not available")
 
 		}
-		_deviceService = gcpService.NewDeviceService(gcpurl)
-		_registryService = gcpService.NewRegistryService(gcpurl)
+		//_deviceService = gcpService.NewDeviceService(gcpurl)
+		//_registryService = gcpService.NewRegistryService(gcpurl)
 
 	} else if serviceType == "kore" {
-		MongoCS := viper.GetString("MongoCS")
+		MongoCS := viper.GetString("ENV_MONGO_CS")
 		if MongoCS == "" {
 			log.Error().Msg("Configuration Error: MongoDB Connection String address not available")
 
 		}
-		MongoDB := viper.GetString("MongoDB")
+		MongoDB := viper.GetString("ENV_MONGO_DB")
 		if MongoDB == "" {
 			log.Error().Msg("Configuration Error: MongoDB Database String not available")
 
 		}
-		RegistryCollection := viper.GetString("RegistryCollection")
+		RegistryCollection := viper.GetString("ENV_REGISTRY_COLLECTION")
 		if RegistryCollection == "" {
 			log.Error().Msg("Configuration Error: MongoDB Registry Collection String not available")
 
 		}
-		DeviceCollection := viper.GetString("DeviceCollection")
+		DeviceCollection := viper.GetString("ENV_DEVICE_COLLECTION")
 		if DeviceCollection == "" {
 			log.Error().Msg("Configuration Error: MongoDB Device Collection String not available")
 
 		}
-		PubTopic := viper.GetString("PubTopic")
-		if PubTopic == "" {
+		Publish := viper.GetBool("ENV_PUBLISH")
+		PubTopic := viper.GetString("ENV_PUB_TOPIC")
+		if PubTopic == "" && Publish {
 			log.Error().Msg("Configuration Error: PubTopic not available")
 
 		}
@@ -141,8 +157,8 @@ func main() {
 			panic(err)
 		}
 		koreService.Ping(ctx, client)
-		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic)
-		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic)
+		_deviceService = koreService.NewDeviceService(ctx, client, DeviceCollection, RegistryCollection, MongoDB, PubTopic, Publish)
+		_registryService = koreService.NewRegistryService(ctx, client, RegistryCollection, MongoDB, PubTopic, Publish)
 
 	} else {
 		log.Fatal().Msg("Configuration Error: Service Type Not Found")

@@ -8,9 +8,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func publish(projectID string, topicID string, msg []byte) error {
+func publish(_ string, topicID string, msg []byte) error {
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectID)
+	//client, err := pubsub.NewClient(ctx, projectID)
+	client, err := pubsub.NewClient(ctx, "customer1-data-plane")
 	if err != nil {
 		return fmt.Errorf("pubsub: NewClient: %v", err)
 	}
