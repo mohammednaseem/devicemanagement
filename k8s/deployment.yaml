@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: devicemngr
-        image: asia-east1-docker.pkg.dev/famous-palisade-356103/device-manager:$REVISION_ID
+        image: asia-east1-docker.pkg.dev/control-plane-358307/device-manager:$REVISION_ID
         imagePullPolicy: IfNotPresent
         env:
         - name: ENV_AUTH_SERVER
